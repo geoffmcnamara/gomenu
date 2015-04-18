@@ -1,0 +1,49 @@
+                        -=*[ gomenu ]*=-
+
+PURPOSE:
+
+This script is to satisfy two personal desires.
+
+1.  To provide a simple and easy menu application that is
+    editible on the fly, and offers item help if desired.
+2.  The need for touching the top of Maslow's hierarchy 
+    - self-actualization.
+
+INSTALLATION:
+
+* I suggest adding $HOME/bin to your path.
+* Then place gmenu script into that directory (~/bin).  
+* Change the mode of gmenu to executable by the user. 
+	eg: chmod +x ~/bin/gomenu
+* Then run gomenu.  It will create a directory called ~/.menu.
+* "gomenu -h" will provide brief help
+* Play with it.
+	
+	-- Shared Menus ---
+* If you desire shared global use:
+	* As root cp gomenu /usr/local
+	* mkdir /usr/share/gomenu
+	* gomenu -s
+		This will automatically create new sample sahred menus in 
+		the /usr/share/gomenu directory.
+		
+* Write me and tell me what you think - yes, tell me about all the
+  spelling and grammer errors too.
+
+FEATURES
+
+GNUGPL license
+Editable menus
+Optional editable help files that can be reassigned to another item number.
+Script based for easy modification by anyone.
+Multiple session, multiple user considerate.  It trys to lock files
+   being edited and create tmp files that are unique to the original
+   shell session started (using $PPID environment variable).
+Single file needed for installation.
+Could scramble every file on your hard disk and leave you distitute!
+
+Enjoy,
+	geoffrey w. mcnamara <geoffm@rni.net>
+============================================
+$Id: README,v 1.6 2012/02/24 16:02:38 cvsuser Exp $
+

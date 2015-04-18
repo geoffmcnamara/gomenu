@@ -1,0 +1,157 @@
+#!/usr/bin/expect --
+# Script Name: 	inetcmd.exp
+# Created by: 	Geoffrey W. McNamara
+# Created on: 	9/19/99
+# Purpose:	This program is deisgned to launch (spawn) another
+#               program or application from an inetd declared port.
+#               It is currently set up to run gomenu -n from inetd
+#               thus allowing a remote telnet session immediate 
+#               gomenu access.
+# GPL License
+# $Id: inetcmd.exp,v 1.4 2012/02/24 16:02:38 cvsuser Exp $
+# $Revision: 1.4 $
+# $Date: 2012/02/24 16:02:38 $
+# Last mod by:	gwm
+# Last mod on:	9/19/99
+# Notes: 
+#      Thanks to Don Libes and O'Reilly Press for their excellent
+#      book - Exploring Expect which provided much of the code examples
+#      used here.
+#
+# Change the CMD and PASSWD below as you desire.
+#
+#   VERY INSECURE - you have been warned. Passwords are in files
+#           and they are plain text during transmission. 
+#     A better choice is to imploy some method of encryption and
+#         challenge authenticity.
+#  To set this up:
+#      Add this line to your /etc/inetd.conf file:
+#  gomenu  stream  tcp     nowait     root   /home/geoffm/bin/inetcmd.exp
+#
+#      Add this line to your /etc/services file:
+#  gomenu          5000/tcp        # gomenu with an expect wrapper
+#
+#     Then re-HUP your inetd (on RedHat "/etc/rc.d/init.d/inetd restart")
+#     daemon.   Then "telnet localhost 5000" and watch gomenu come up
+#     with menu editing turned off (for SOME security at least).
+#
+
+####### Global Variables ########################
+
+# !!!!!!!!!! Change these !!!!!!!!!!! #
+set CMD "/path/gomenu"
+set PASSWORD "testpassword\r"
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+
+set PARAMS "-n -f remote.mnu"
+
+set LINE "############################################################"
+set LOG /tmp/gomenu.log
+
+# Next line not needed now because gomenu is executed with no editing 
+#set env(EDITOR) "pico"
+
+######### EOGloabal Variables ####################
+
+
+set timeout 150
+
+exec echo Entering... >> $LOG
+exec /usr/bin/who am i >> $LOG
+
+send_user "\n\n\n$LINE\n"
+send_user "Your connection has been logged!\n$LINE\n\n"
+send_user "Password? "
+expect_user -re "(.*)\n" {
+  send_user "\n$LINE\n\n"
+  set password $expect_out(1,string)
+
+  if { 0 !=[ string compare $password $PASSWORD ] } {
+	send_user "You're entry is invalid. Outta here....!!\n\n\n"
+	exec date >> $LOG
+	exec echo Exiting after invalid login attempt... >> $LOG
+	exit
+  } 
+} timeout {
+  puts "\r\rTimed out; he who hesitates is lost!"
+  exit 1
+}
+
+set IAC	"\xff"
+set DONT "\xfe"
+set DO 	"\xfd"
+set WONT "\xfc"
+set WILL "\xfb"
+set SB "\xfa"	
+set SE "\xf0"
+set TTYPE "\x18"
+set SGA "\x03"
+set ECHO "\x01"
+set SEND "\x01"
+
+
+send "$IAC$WILL$ECHO"
+send "$IAC$WILL$SGA"
+send "$IAC$DO$TTYPE"
+
+remove_nulls 0
+
+expect_before {
+	-re "^$IAC$DO$ECHO" {
+	# treat as acknowledgement and ignore
+	exp_continue
+	}
+	-re "^$IAC$DO$SGA" {
+	# treat as acknowledgement and ignore
+	exp_continue
+	}
+	-re "^$IAC$DO\(.)" {
+	send_user "$IAC$WONT$expect_out(1,string)"	
+	exp_continue
+	}
+	-re "^$IAC$WILL$TTYPE" {
+	# respond to acknowledgement
+	send_user "$IAC$SB$TTYPE$SEND$IAC$SE"
+	exp_continue
+	}
+	-re "^$IAC$WILL$SGA" {
+	# acknowledge request
+	send_user "$IAC$DO$SGA"
+	exp_continue
+	}
+	-re "^$IAC$WILL\(.)" {
+	# refuse anything esle
+	send_user "$IAC$DONT$expect_out(1,string)"
+	exp_continue
+	}
+	-re "^$IAC$SB$TTYPE" {
+	expect_user null
+	expect_user -re "(.*)$IAC$SE"
+	set env(TERM) [string tolower $expect_out(1,string)]
+	# now drop out of protocol handling loop
+	}
+	-re "^$IAC$WONT$TTYPE" {
+	# treat as acknowledgement and ignore
+	set env(TERM) vt100
+	# now drop out of protocol handling loop
+	}
+}
+
+expect		;# do negotiations up to terminal type
+
+
+# remove protocol negotiation patterns
+#expect_before -i $user_spawn_id
+
+spawn $CMD $PARAMS
+
+interact "\r" {
+	send "\r"
+	expect_user \n {} null
+}
+
+exec date >> $LOG
+exec echo Exiting... >> $LOG
+
+exit
+}

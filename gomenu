@@ -1,0 +1,1142 @@
+#!/bin/bash
+# Name of file:  gomenu 
+# Created by:    Geoffrey W. McNamara           (c) 1998,1999,2000,2001,2002
+# Created on:    5/13/98
+# Last modified: see define below...
+# Release terms: GNUGPL License
+# Purpose:       This script is designed to make using the virtual console
+#                just a little easier.  This is a simple "editible" menu script.
+# Notes: 
+#  First: this code can be greatly improved... but...
+#  1.   I lack the skill to do so.
+#  2.   If you have suggestions, please send them to:
+#            geoffm@rni.net
+#  3.   This has not been tested in many environments
+#            - seems to work in sh, bash and ksh 
+#  4.	Lots of nagging probs remain : like misbehaving on abnormal
+#		termination of programs ...
+# 	And there is no decent way to indicate that you are shelled out from
+#	   this menu script - I tried in vain to find a good way
+#	   to append onto the useri's prompt an indication of being
+#	   shelled out of the menu... if somebody has a good solution...
+################################
+# $Id: gomenu,v 1.40 2012/02/24 16:02:38 cvsuser Exp $
+# $Revision: 1.40 $
+################################
+# For debugging...
+#set -x
+
+# ======================= Global Variables ===================================
+MENUDIR="$HOME/.menu"		# This directory is created if it doesn't exist
+MENUNAME="main.mnu"		# start off with main.mnu unless -f changes it
+MENUFILE="$MENUDIR/$MENUNAME"	# Main menu name - can be changed above
+EDITOR=${EDITOR:-"vi"}		# Grabs env EDITOR or sets to vi
+PAGER=${PAGER:-"more"}		# Grabs env PAGER or sets to more
+
+############## It would be best not to dingle with anything below ############
+# This one is because I have had to change the name too many times
+# So conceivably you can change the name of this script an all will
+# still work .... but calls within a menu file have to be to the 
+# script name --- so if you call a submenu then do something like this:
+#              $MENU -f servers
+MENU=$0   		# the menu script name can now be whatever
+export MENU
+
+# lets us track the menu level
+if [ "${GLVL}x" = "x" ]; then
+  GLVL=0
+fi
+GLVL=`expr $GLVL + 1`
+export GLVL
+
+LINE="========================================================================"
+LASTMOD="$Date: 2012/02/24 16:02:38 $"
+VERSION="$Revision: 1.40 $"
+#LASTMOD=$(echo $LASTMOD|sed s/\\$//g|sed s/\://g)
+LASTMOD=$(echo $LASTMOD|sed s/\\$//g|sed s/\$//g)
+VERSION=$(echo $VERSION|sed s/\\$//g|sed s/\://g)
+COMMENTSEXIST="UNKNOWN"         # Used to track if there are comments in menu
+STATUS=true			# used in while loops
+if [ -f ~/.menu/expert_flag ]; then
+  EXPERT="Y"
+else
+  EXPERT="N"			# Use is readily apparent
+fi
+EDITMENU="Y"			#     "    "
+# The 'ps' & 'find' options are different (read "better") in GNU form from
+#  other systems so...
+# This has to come before next block of code re: another $MENU running?
+if uname | grep Linux >/dev/null ; then
+	PSCMD="ps -aux "
+	DEPTHOPTION="-maxdepth 1"
+else
+	PSCMD="ps -ef "
+	DEPTHOPTION=""	# I couldn't find a good substitute for this in
+			# other environments (non-linux find commands)
+fi
+# Another $MENU running???
+# This is another ugly kludge that TRYS to avoid clashing multiple
+# sessions of $MENU...
+GMENUPID=$PPID
+MENURUNFILE="$MENUDIR/$MENUrun$GMENUPID.tmp"
+COLS=$(tput cols)
+
+
+#########################################
+# ============ Functions ============== #
+#########################################
+
+#############
+handleOPTS ()
+#############
+{
+# --- Command line Options/Arguments ---
+# echo We are now in the handleOPTS func
+# read ANS
+while getopts "Ccnxrshf:e:*vV" opt; do
+	case $opt in
+		e )  CHOICE=$OPTARG
+			# This just passes the digit (hopefully a digit) to
+			# the rest of the script by entering it into the
+			# CHOICE variable.
+			;;
+		f ) MENUNAME=$OPTARG
+			MENUFILE=${MENUDIR}/${MENUNAME}
+			if [ ! -f ${MENUFILE} ]; then
+				make_sample_menu
+			fi
+			;;
+		c ) if [ "$COLOR" != "Y" ]; then
+			CURR_EXPERT=$EXPERT
+			EXPERT="Y"
+			toggleCOLOR
+			EXPERT=$CURR_EXPERT
+			fi
+			;;
+		C ) CURR_EXPERT=$EXPERT
+			EXPERT="Y"
+			toggleCCOLOR
+			EXPERT=$CURR_EXPERT
+			;;
+		n ) EDITMENU="N"
+			;;
+		x ) 
+			EXPERT="Y"
+			;;
+		r )
+			# Reverse colors for light bg terms
+			REVERSE_COLOR="YES"
+			;;
+		s )
+      # Make the default menu directory (designated in variable) if
+      # it doesn't exist
+      if [ ! -d $MENUDIR ]; then
+        printf "%s\n" " Making $MENUDIR for menu file storage..."
+              mkdir $MENUDIR
+      fi
+
+			if [ -d /usr/share/gomenu ]; then 
+				MENUDIR=/usr/share/gomenu
+				MENUFILE="$MENUDIR/$MENUNAME"	
+				#MENURUNFILE="$MENUDIR/$MENUrun$GMENUPID.tmp"
+			else
+        if chkID root ; then
+          cp $0 /usr/local/bin/
+          chmod a+x /usr/local/bin/gomenu
+          mkdir -p /usr/share/gomenu
+          chmod 0777 /usr/share/gomenu
+          echo $0 has been setup for shared use...
+        else
+  				echo $LINE
+  				echo "It appears that the directory /usr/share/gomenu is not accesible"
+  				echo "Request that the system administrator create it and create any"
+   				echo "approved system wide menus there. A file called main.mnu can act"
+  				echo "as the default. The permissions on that directory must allow all"
+  				echo "users permission to write - or group permission to write for"
+  				echo "selected users. Give the /usr/share/gomenu dir 0777 permissions."
+  				echo "With the root account do these steps:"
+  				echo "Make sure gomenu is in /usr/local/bin and executable by all"
+  				echo " cp gomenu /usr/local/bin"
+  				echo " chmod a+x /usr/local/bin/gomenu"
+  				echo "Then establish working menus..."
+  				echo " mkdir -p /usr/share/gomenu"
+  				echo " chmod 0777 /usr/share/gomenu"
+  				echo " gomenu -s"
+  				echo "Create any menus there that you desire."
+          echo "                OR"
+          echo " Run $0 -s again as root..."
+  				echo $LINE
+  				echo " Hit <ENTER> to continue without a system menu"
+  				read -e ANS
+  xxx
+        fi
+			fi
+			;;
+		h )
+			doUSAGE 
+			exit 1
+			;;
+		v ) 
+			grep "\$Revision" $0|grep -v grep|sed 's/\$//g'|sed 's/#//g'
+			exit 1 
+			;;
+		* )
+			doUSAGE
+			exit 1
+			;;
+	esac
+done
+
+shift `expr $OPTIND - 1`
+#shift $(($OPTIND -1))
+
+#if [ $# -gt 0 ]; then
+#	doUSAGE
+#	exit 1
+#fi
+}
+# ----- EOFuntion: handleOPTS ------------
+
+########
+doUSAGE ()
+########
+{
+clear
+cat << EOCat
+useage: $MENU [-c] [-C] [-e ##] [-n] [-h] [-x] [-f menufile]
+
+	-c	color added to menu (normally for dark colored background terms)
+			(see -r for light color back ground  color scheme)
+	-C	color is added to all called menus recursively
+	-e	menu item to automatically execute - this parameter
+		MUST be followes by the number associated with
+		the menu item you want to execute.
+	-n	no editing of menus - offers some security.
+	-x	Expert mode is turned on - eliminates some help 
+		   displays
+	-r	reverse some of the colors for a light color background
+	-s  shared menus - needs system admin setup.
+	     - run this and a brief notation provides more information.
+	-h	displays this help
+	-?	displays this help
+	-f	file to use for menu - this parameter MUST be
+		followed by a file name (no path should be added)
+		    eg.  $MENU -f communications.mnu  
+		A default menu will be used if no "-f menu-file-name" 
+		is declared.
+EOCat
+
+printf "%s\n" "   Please hit ENTER to continue..."
+read ANS
+clear
+
+cat << EOF
+
+-=*[ ${MENU} ]*=-
+
+${MLINE}
+
+This script was created to be a useful tool.  It contains simple
+code that may be instructive to others.  Unix and its variants can be
+daunting with its Spartan power. Perhaps, this simple utility demonstrates
+some of the functionality of unix shells.
+
+I wrote this as a System's Administrator who could not keep all the pieces
+of code that had been developed readily available to others.  This menu
+project helps prevent those code fragments from getting lost, forgotten,
+or worse, rewritten. 
+
+I hope it brings some satisfaction to you.  Suggestions are encouraged.
+Please see the script contents for more info.
+
+${MLINE}
+
+Enjoy!
+EOF
+}
+# ----- EOFuntion: doUSAGE ----------------
+
+#########
+doSETUP ()
+#########
+{
+# This helps to prevent the problem of losing $MENU when the user has to
+# use Ctrl-C to get out of a hung process (menu item).
+# 1=hangup 2=interrupt 3=quit 9=kill 15=terminator
+# use trap -l  to get a list of signals
+trap 'echo "Ignoring a trapped Signal 2...";return'  2 
+
+# Clear out a stale MENURUNFILE (unlikely as it may be with the same PID)
+if [ -f $MENURUNFILE ]; then
+	rm -f $MENURUNFILE
+fi
+
+# Determine what shell is running and perform all the necessary magic.
+# First lets make sure it is set correctly
+MYSHELL=`echo $SHELL|sed -e 's/^.*[\/*$]//'`
+if ps | grep "$MYSHELL" >/dev/null ; then
+  :
+else
+  echo "Warning: it appears that your SHELL [$SHELL] variable may not be set to the current running shell."
+  sleep 3
+  read ANS
+fi
+  
+doMLINE
+
+case $MYSHELL in
+ 	csh  	) clear 
+		# It will error out before it gets this far becuase
+		# of the way variables are handled...
+ 	       	printf "%s\n" "My apologies... %0 fails under csh shell."
+ 	       	printf "%s\n" "It could probably be fixed - anyone interested?"
+ 		read ANS
+ 	       	exit 3;;
+ 	sh|bash|ksh    ) ECHOCMD="printf "
+		;;
+ 	*    	) echo "Unknown SHELL variable... "
+ 		  echo "Running at owners own risk!"
+ 		  echo "Hit any key to continue..."
+ 		  read ANS
+ 		  ECHOCMD="echo";; 
+esac   
+
+
+# Make the default menu directory (designated in variable) if
+# it doesn't exist
+if [ ! -d $MENUDIR ]; then
+	printf "%s\n" " Making $MENUDIR for menu file storage..."
+        mkdir $MENUDIR
+fi
+
+# Create a sample Main ($MENUNAME) if one does not already exist 
+if [ ! -f $MENUDIR/$MENUNAME ]; then
+	cat >$MENUDIR/$MENUNAME <<EOF
+# This is a sample $MENUNAME file
+# All Comments must have the pound symbol as the FIRST character.
+# The first non-commented line is always the menu title
+# The menu file is stripped of all comments and blank lines
+#   and a "pure" menu file is made without comments and
+#   blank lines.  The temporary "pure" file is used to speed
+#   things up a bit.
+
+# Blank lines are ok too.
+Main Menu - change this line as you wish!
+# The second non-commented line is always the first menu
+#    item description
+
+First entry is to run ls ...
+# The next non-commented file (3rd data line) is the actual
+#   commands for execution.  Commands must all be on
+#   one line so if you have a lot of commands write a 
+#   separate script file and use $MENU to call it.
+ls|more;echo "Hit any key to continue...";read ANS
+
+# The next line is the description for the second menu item
+Second entry is to run ls -ltr
+# And the following line is the associated "action" command line
+#   for the description given just previously
+ls -ltr|more;echo "Hit any key to continue...";read ANS
+
+# This next two lines describe a call to a new menu
+#  with a line to call $MENU with a parameter to tell it
+#  what menu file to use - study the example for best
+#  understanding.
+Menu: Sample Network Menu (color)
+\$MENU -c -f network.mnu
+
+# This next one is really why I developed \$MENU
+MENU: Edit files (or notes)
+\$MENU -f edit.mnu
+
+# Example of how to us su  ...
+MidnightCommander (as root)
+echo Assumes a ~/tmp directory;su -l root -c "export DISPLAY=:0.0;cd ~/tmp;mc"
+
+# This menu will let you pick the window manager you want!
+MENU: for starting X with different Window Managers
+\$MENU -f startx.mnu
+
+# Here's a simple shell command
+Shell out (use "exit" to return)
+\$SHELL
+
+# Obviously, comments can go anywhere
+EOF
+
+#  sed "s|Main Menu|${MENUNAME}|g" ${MENUDIR}/${MENUNAME} > /tmp/replaceit$$
+#  mv /tmp/replaceit$$ ${MENUDIR}/${MENUNAME}
+fi
+
+# Create a sample edit.mnu if one doesn't exist
+if [ ! -f $MENUDIR/edit.mnu ]; then
+	cat >$MENUDIR/edit.mnu<<EOF
+Edit Files
+Edit personal notes
+\$EDITOR ~/personal.nts
+Edit phone number list
+\$EDITOR ~/phone.lst
+Edit ToDo.nts
+\$EDITOR ~/ToDo.nts
+Edit /etc/hosts
+\$EDITOR /etc/hosts
+EOF
+fi
+
+# Create a sample network.mnu if one doesn't already exist 
+if [ ! -f $MENUDIR/network.mnu ]; then
+	cat >$MENUDIR/network.mnu<<EOF
+Network Menu
+Ping Netscape
+ping home.netscape.com;read ANS
+Telnet this localhost
+telnet localhost
+Who am I
+who am i | awk '{print $1}';echo Hit a key...;read ANS
+Who is on-line
+w;echo Hit a key...;read ANS
+EOF
+fi
+
+# Create a sample xapps.mnu if one doesn't already exist
+if [ ! -f $MENUDIR/xapps.mnu ]; then
+	cat >$MENUDIR/xapps.mnu<<EOF
+Xapps Menu
+Ical
+ical &
+xosview
+xosview &
+Xemacs
+xemacs &
+xkill (kill a window)
+xkill &
+EOF
+fi
+
+# Create a sample remote.mnu if one doesn't already exist
+if [ ! -f $MENUDIR/remote.mnu ]; then
+	cat >$MENUDIR/remote.mnu<<EOF
+Remote Menu
+Who is on...
+who; read ANS
+uptime
+uptime;read ANS
+EOF
+fi
+
+# Create a sample Xwindows.mnu if one doesn't already exist
+if [ ! -f $MENUDIR/startx.mnu ]; then
+        cat >$MENUDIR/startx.mnu<<EOF
+Menu Title: startx.mnu
+AfterStep
+echo exec afterstep > ~/.xinitrc ; startx
+WindowMaker
+echo wmaker > ~/.xinitrc ; startx
+Gnome session
+echo gnome-session > ~/.xinitrc ; startx
+Enlightenment
+echo "enlightenment" > ~/.xinitrc ; startx
+KDE
+echo startkd > ~/.xinitrc ~/.xinitrc ; startx
+FVWM
+echo fvwm2 > ~/.xinitrc ; startx
+BlackBox
+echo blackbox > ~/.xinitrc ; startx
+icewm
+echo icewm > ~/.xinitrc ; startx
+sawmill
+echo sawmill > ~/.xinitrc ; startx
+- Sample separator line ---
+:
+Jump out to bash
+/bin/bash
+EOF
+fi
+
+# Now set the colors - this is a little convoluted but here's the reasoning:
+# I only want the color setting code to appear once.  I stuck in the
+# toggleCOLOR function so as to initialize the color.
+# I run toggleCOLOR twice thus getting the COLOR variables all 
+# established and putting the color back where it started out - this 
+# primarily is for those who use the COLOR variable externally.
+ORIGEXPERT=$EXPERT
+EXPERT="Y"
+toggleCOLOR
+toggleCOLOR
+EXPERT=$ORIGEXPERT
+}
+# --- EOFunction: setup ---
+
+###########
+doMLINE ()
+###########
+{
+MLINE=""
+i=0
+while [ $i -lt $COLS ]; do
+  MLINE=${MLINE}`printf "="`
+  i=$[ $i + 1 ]
+done
+#MLINE="${MLINE}\n"
+export MLINE
+}
+
+#################
+getMENU_TITLE ()
+#################
+{
+#while read -r line; do
+while read line; do
+	MENUTITLE=$line
+	break
+done
+}
+# ------- EOFunction: getMENU_TITLE -------------
+
+#####################
+displaySELECTIONS ()
+#####################
+{
+menu_number=1
+# the first non commented line read is for the menutitle
+getMENU_TITLE
+#while read -r line; do
+while read line; do
+	# mititle = menu item title
+	if [ -f $MENUFILE.hlp.$menu_number ]; then
+		mititle="${COLOR06} *	${COLOR08}${line}"
+	else
+		mititle="	${COLOR08}${line}"
+	fi
+  # need to fix the length printed here
+  CUT_COLS=$( expr ${COLS} - 5 )
+	echo "   ${COLOR07}$menu_number${mititle}"|cut -c-$CUT_COLS
+	#echo "   ${COLOR07}$menu_number${mititle}"|cut -c-88
+	#while read -r line; do
+	while read line; do
+		action=$line
+		break
+	done
+	#let menu_number=menu_number+1
+	menu_number=`expr $menu_number + 1`
+done
+}
+# --- EOFunction: displaySELECTIONS ---
+
+#################
+get_actionline ()
+#################
+{
+# $1 = menu action line selected (CHOICE)
+menu_number=0
+# the first read is for the menutitle
+getMENU_TITLE
+while   [ $menu_number -lt $1 ]; do
+	#read -r line
+	read line
+		title=line
+		#while read -r line; do
+		while read line; do
+       			action=$line
+			break
+		done
+        	#let menu_number=menu_number+1
+        	menu_number=`expr $menu_number + 1`
+done
+}
+# --- EOFunction: get_actionline ---
+
+#######
+doHELP ()
+#######
+{
+printf "${COLOR09}Please enter the item number for which you desire help:____\b\b\b"
+ITEMNUM=""
+read -e ITEMNUM
+# Next line was bogus and fails miserably on sun becuase it's grep lacks the
+# capability for :digit:
+#if [ "x$ITEMNUM" = "x" ] || [ ! "$(echo "$ITEMNUM" | grep [[:digit:]] )" ]; then
+if [ ! "$(echo "$ITEMNUM" | egrep [0-9]+ )" ]; then
+	clear
+# this next line tried to call a function that does not exist
+#	display_menu
+	return
+fi
+
+clear
+
+if [ -f ${MENUFILE}.hlp.${ITEMNUM} ]; then
+	if [ `cat ${MENUFILE}.hlp.${ITEMNUM} | wc -l` -lt 23 ]; then
+	   printf "${COLOR09}Help file for $MENUTITLE item $ITEMNUM\n"
+	   printf "%s\n" "${COLOR06}${MLINE}${COLOR01}"
+	   cat ${MENUFILE}.hlp.${ITEMNUM}
+	else
+	   printf "${COLOR01}"
+	   $PAGER ${MENUFILE}.hlp.${ITEMNUM}
+	fi
+	printf "\n${COLOR06}${MLINE}\n"
+	printf "${COLOR09}(e)dit, (d)elete, (r)eassign number,(ENTER) to return: _____${COLOR01}\b\b\b"
+	ANS=""
+	read -e ANS
+	case $ANS in
+	  [Ee] ) $EDITOR ${MENUFILE}.hlp.${ITEMNUM};;
+	  [Dd] ) ANS="y"
+	     printf "${COLOR09}Verify deletion of `basename ${MENUFILE}.hlp.${ITEMNUM}` ([y]/n): ${COLOR01}"
+	     read -e ANS
+	     if [ "$ANS" = "y" ]||[ "x$ANS" = "x" ]; then 
+		rm -f ${MENUFILE}.hlp.${ITEMNUM}
+ 	     fi
+	     ;;
+	  [Rr] ) clear
+	        printf "This routine allows you to reassign the menu to\n"
+	        printf "the proper item.  Misalignment can occur after\n"
+	        printf "menu editing.\n"
+		printf "Displayed are the current selections:\n"
+		displaySELECTIONS < $MENUFILE$GMENUPID.pure.tmp
+		printf "\nPlease enter the new item number to use: _____\b\b\b"
+		NEW_ITEMNUM=""
+		read -e NEW_ITEMNUM
+		if [ "x$NEW_ITEMNUM" != "x" ] || [ ! "$(echo "$ITEMNUM" | grep [[:digit:]] )" ]; then
+		  mv ${MENUFILE}.hlp.${ITEMNUM} ${MENUFILE}.hlp.${NEW_ITEMNUM}
+		else
+		  printf "New item number is not correct... exiting\n"
+		fi
+		;;
+		*    ) ;;
+	esac
+else
+	printf "${COLOR09}No help file for this item was found.${COLOR01}\n"
+	ANS=""
+	printf "Would you like to create one? ([y]/n) "
+	read -e ANS
+	if  [ "$ANS" = "y" ]||[ "$ANS" = "Y" ]||[ "x$ANS" = "x" ]; then
+		$EDITOR ${MENUFILE}.hlp.${ITEMNUM}
+	fi
+fi
+}
+
+############
+editMENU ()
+############
+{
+clear
+if [ "$EDITMENU" = "N" ]; then
+	printf "${MLINE}\n"
+	printf "%s\n" "You do not have the ability to edit menus."
+	printf "%s\n" "Please contact the system administrator."
+	printf "${MLINE}\n"
+	read ANS
+	return
+fi
+printf "${COLOR01}"
+if [ "$EXPERT" != "Y" ]; then
+cat <<EOF
+Menu Edit Routine
+${MLINE}
+Your current menu file will come up next using the \$EDITOR environment
+variable to determine the editor to use.  In the absence of a declared
+EDITOR variable "vi" will be used.  This is not an easy editor to use 
+but it is on every unix system.  Comment lines must start with a pound
+sybol as the very first character. 
+ 
+* The first non-comment line will be the menu TITLE. 
+* The next non-comment line will be the first menu item description.
+* The following non-commented line will be the associated action line.
+
+Action lines are just executed scripts... all commands must be on one
+line separated by semi-colons.
+
+Note: While the menu file is being edited a lock file (`basename $MENUFILE.LCK`) 
+      will exist in the menu directory ($MENUDIR).  
+
+Suggestion: You can name menus anything you like, BUT you may want to
+      consider adding the extension ".mnu" to all menu files in
+      order to maintain some continuity in the menu directory.
+${MLINE}
+Hit any key to edit your file...
+EOF
+	read ANS
+fi
+if [ -f ${MENUFILE}.LCK ]; then
+	clear
+	printf "$MLINE\n"
+	printf "$MENUFILE is currently locked by another session...\n"
+	printf "$MLINE\n"
+	ANS="y"
+	printf ""
+	printf "%s" "Do you want to try and edit anyway? [y]/n: "
+	read -e ANS
+	if [ "$ANS" = "y" ]; then
+		rm -f ${MENUFILE}.LCK
+		if [ -f ${MENUFILE}.LCK ]; then
+		  printf "Removal of ${MENUFILE}.LCK failed... returning...\n"
+		  printf "Tap ENTER to continue...\n"
+		  read ANS
+		else
+		  $EDITOR $MENUFILE
+		fi
+	fi
+else	
+	touch ${MENUFILE}.LCK
+	$EDITOR $MENUFILE
+	rm -f ${MENUFILE}.LCK
+fi
+makePURE_MENU < $MENUFILE
+}
+# --- EOFunction: editMENU --- 
+
+
+###############
+toggleXPERT ()
+###############
+{
+clear
+if [ "$EXPERT" = "N" ]; then
+	printf "Toggling Expert mode ON\n"
+	EXPERT="Y"
+	cat << EOF
+${MLINE}
+Expert mode does two things.  It will eliminate messages like this one that
+help explain details regarding various functions.  Expert mode saves you
+keystrokes and a little time. This only affects this session, however
+if you creat/touch a file named ~/.menu/expert_flag then all menus and 
+sessions will be treated as expert.
+
+It also eliminates a check for exit codes that MAY indicate an error 
+after running any menu item.  Non-expert mode results in a check for
+an exit code of "0".  It warns you if any non-zero exit code is returned
+after running a command and pauses for you to read any possible output
+from the last message.
+
+Note: You can start $MENU with the "-x" parameter to force expert mode.
+${MLINE}
+EOF
+	
+else
+	printf "Toggling Expert mode OFF\n"
+	EXPERT="N"
+fi
+printf "Hit ENTER to continue..."
+read ANS
+}
+# --- EOFuncion: toggleXPERT
+
+############
+do_choice ()
+############
+{
+# $1 = number selected by user ($CHOICE)
+get_actionline $1 <$MENUFILE$GMENUPID.pure.tmp
+if [ ! -d $MENUDIR ]; then
+  mkdir $MENUDIR
+fi
+echo $action >$MENURUNFILE
+#echo $MENU -f $MENUNAME >> $MENURUNFILE # nope - didn't help
+
+chmod +x $MENURUNFILE
+
+clear
+eval $SHELL $MENURUNFILE  # This is where the rubber hits the road
+
+# Tried all these below... with no failures
+#eval $MENURUNFILE  # This one fails with options on submenus
+#eval exec $MENURUNFILE  # This one fails to ever come back
+#eval $SHELL $MENURUNFILE  # This one loads the shell unnecessarily
+#$SHELL $MENURUNFILE  # This one loads the shell unnecessarily
+#exec $MENURUNFILE  # fails to return - Dorthy, Dorthy, come home Dorthy!
+
+XITCODE=$?
+if [ $XITCODE != 0 ] && [ "$EXPERT" != "Y" ]; then
+  printf "Exit Code = $XITCODE - possible error? \n"
+  printf "Hit ENTER to continue...\007\n"
+  read ANS
+fi
+rm -f $MENURUNFILE 
+}
+#------- EOFunction: do_choice -------------
+
+###############
+toggleCOLOR ()
+###############
+{
+# This function is designed so a configurable color routine can 
+# work with this - maybe I'll do that in my next life... <smile>
+if [ "$EXPERT" != "Y" ]; then
+	clear
+	printf "${COLOR01}"
+cat <<EOF
+
+${MLINE}
+Note: If you want color on all the time, set the environment variable
+   COLOR="Y".  To do this is bash or ksh shell use 
+       export COLOR="Y"
+   You can also start $MENU with the "-c" parameter.
+   Do this in your startup profile script (eg .bash_profile or .bashrc)
+	or at least set the variable before you start $MENU
+${MLINE}
+WARNING: color defaults for a dark background.  Use "r" to toggle between
+color set for dark background and color set for kight background.	
+
+Hit any key to continue ...
+
+Enjoy!
+EOF
+	read ANS
+	clear
+fi
+
+# Do the actual toggle of color
+if [ "$COLOR" = "Y" ]; then
+	COLOR=""
+else
+	COLOR="Y"
+fi
+
+# Set all the color appropriately
+if [ "$COLOR" = "Y" ]; then
+ 	BLACK='[30m'
+ 	RED='[31m'
+ 	GREEN='[32m'
+ 	YELLOW='[33m'
+ 	BLUE='[34m'
+ 	MAGENTA='[35m'
+ 	CYAN='[36m'
+ 	WHITE='[37m'
+ 	BRIGHT='[01m'
+ 	BLINK='[05m'
+ 	REVERSE='[07m'
+ 	NORMAL='[0m'
+ 
+	# The suggestion to use tput commands came from Bruce Verderaime
+	# This makes this portable across all TERM settings - thanks Bruce!
+	# See terminfo man page for more info...
+	# However, it failed in some important circumstances so ...
+#	BLACK="`tput setaf 0`"
+#	RED="`tput setaf 1`"
+#	GREEN="`tput setaf 2`"
+#	YELLOW="`tput setaf 3`"
+#	BLUE="`tput setaf 4`"
+#	MAGENTA="`tput setaf 5`"
+#	CYAN="`tput setaf 6`"
+#	WHITE="`tput setaf 7`"
+#	BRIGHT="`tput bold`"
+#	NORMAL="`tput sgr0`"
+#	BLINK="`tput blink`"
+#	REVERSE="`tput smso`"
+#	UNDERLINE="`tput smul`"
+	
+	if [ "$REVERSE_COLOR" = "YES" ]; then
+		COLOR00=${NORMAL}
+		COLOR01=${NORMAL}${BLACK}
+		COLOR02=${BRIGHT}${BLUE}
+#		COLOR03=${BRIGHT}${CYAN}
+		COLOR03=${BRIGHT}${RED}
+		COLOR04=${NORMAL}${BLACK}
+		COLOR05=${NORMAL}${RED}
+#		COLOR06=${NORMAL}${GREEN}
+		COLOR06=${BRIGHT}${GREEN}
+#		COLOR07=${NORMAL}${YELLOW}
+		COLOR07=${NORMAL}${BLUE}
+		COLOR08=${NORMAL}${BLACK}
+		COLOR09=${BRIGHT}${BLUE}
+		COLOR10=${BLINK}${BLACK}
+		COLOR11=${REVERSE}
+	else 
+		COLOR00=${NORMAL}${WHITE}
+		COLOR01=${BRIGHT}${WHITE}
+		COLOR02=${NORMAL}${BLUE}
+		COLOR03=${BRIGHT}${CYAN}
+		COLOR04=${NORMAL}${WHITE}
+		COLOR05=${NORMAL}${RED}
+		COLOR06=${BRIGHT}${GREEN}
+		COLOR07=${NORMAL}${YELLOW}
+		COLOR08=${BRIGHT}${WHITE}
+		COLOR09=${BRIGHT}${BLUE}
+		COLOR10=${BLINK}${WHITE}
+		COLOR11=${REVERSE}
+	fi
+else
+	COLOR00=
+	COLOR01=
+	COLOR02=
+	COLOR03=
+	COLOR04=
+	COLOR05=
+	COLOR06=
+	COLOR07=
+	COLOR08=
+	COLOR09=
+	COLOR10=
+	COLOR11=
+fi
+}
+# --- EOFunction: toggleCOLOR ----
+
+###############
+toggleCCOLOR ()
+###############
+{
+# Cascading Color function
+# This function is to allow setting the COLOR variable to "Y"
+# thereby keeping all subsequest menus in color
+if [ "$EXPERT" = "N" ]; then
+   clear
+   printf 'Using a capital "C" toggles color mode ON for all\n'
+   printf "subsequent menus.  This eliminates the need to add\n"
+   printf 'the parameter "-c" after each call to another menu.\n'
+   printf "\n"
+   printf 'You can use "-C" on the command line for $MENU for\n'
+   printf "the same effect.\n"
+   printf "\n"
+   printf "Hit ENTER to continue..."
+   read ANS
+fi	
+COLOR="Y"			# This make it persist through other menus
+export COLOR
+export REVERSE_COLOR
+ORIG_EXPERT=$EXPERT		# Getting ready to set colors - but first
+				# turn off any verbose help etc
+EXPERT="Y"
+toggleCOLOR			# This function is called twice to set colors
+toggleCOLOR			# Then restore to proper mode or state
+EXPERT=$ORIG_EXPERT 		# Restore original expert state
+}
+# --------- EOFunction: toggleCCOLOR --------
+
+#################
+makePURE_MENU ()
+#################
+{
+# This function strips out all comments and blank lines from
+# the menu file and writes it to a temporary file.  All functions
+# that read the menufile will now read the temporary "pure" menu file.
+# Given the number of times the menu file is read, this speeds things
+# up considerable.  Its ugly, but it works.  It is slow only on the
+# first read of a menu.
+if [ -f $MENUFILE ]; then
+  rm -f $MENUFILE$GMENUPID.pure.tmp 
+# They keep breaking egrep so I have changed this to using sed - 10/02/00 gwm
+#  egrep -v '^[ ^I]*(#|$)' $MENUFILE >>$MENUFILE$GMENUPID.pure.tmp
+  cat $MENUFILE | sed -e 's/#.*$//'|sed -e '/^$/d' >$MENUFILE$GMENUPID.pure.tmp
+else
+  make_sample_menu
+fi
+}
+# --------- EOFunction: makePURE_MENU ------
+
+###################
+make_sample_menu ()
+###################
+{
+clear
+printf "%s\n" "Menu Title: `basename $MENUFILE` - edit as you desire." >$MENUFILE
+printf "%s\n" "Sample Menu Item Description 1">>$MENUFILE
+printf "%s\n" 'echo "This is a sample menu action line...";read ANS'>>$MENUFILE
+printf "%s\n" "--- Sample separator line ---" >>$MENUFILE
+printf "%s\n" ":" >>$MENUFILE
+printf "%s\n" "Jump out to shell">>$MENUFILE
+printf "%s\n" "$SHELL">>$MENUFILE
+
+
+printf "%s\n" "${MLINE}"
+printf "%s\n" "Note: no $MENUFILE found... "
+printf "%s\n" "${MLINE}"
+printf "%s\n" ""
+printf "%s\n" "We will now enter the edit menu routine..."
+printf "%s\n" ""
+printf "%s\n" "${MLINE}"
+printf "%s\n" "Please tap ENTER to continue..."
+printf "%s\n" "${MLINE}"
+read ANS
+editMENU
+}
+# --------- EOFunction: make_sample_menu ----
+
+###########
+clean_up ()
+###########
+{
+rm -f $MENUFILE$GMENUPID.pure.tmp
+if [ "$GMENUPID" = "PPID" ]; then
+	# We are the first instance of $MENU in this terminal
+	rm -f *$GMENUPID.pure.tmp
+fi
+rm -f $MENURUNFILE
+# If any tmp or LCK files are hanging around several days - remove them
+find $MENUDIR -type f -mtime +1 ${DEPTHOPTION} -name "*.tmp" -exec rm -f {} \;
+find $MENUDIR -type f -mtime +1 ${DEPTHOPTION} -name "*.LCK" -exec rm -f {} \;
+stty sane 			# just in case things got a little fooey...
+}
+# --------- EOFunction: clean_up ------------
+
+############
+doHEADER ()
+############
+{
+COLS=$(tput cols)
+if [ "${COLS}" -ne "$(tput cols)" ]; then
+  doMLINE
+fi
+printf "%s" "${COLOR01}"
+TITLE_HDR="-=*[ $MENU ]*=-"
+VER_HDR="Ver:$VERSION$LASTMOD"
+POS=$( expr ${COLS} - $( echo "${TITLE_HDR}"|awk '{print length}') )
+printf "%s" "${TITLE_HDR}"
+printf "%${POS}s\n" "${VER_HDR}"
+
+DATE_HDR="Today's Date: `date +%m/%d/%Y`"
+MLEVEL_HDR="Menu Level: $GLVL"
+LEN=$( echo "${DATE_HDR}"|awk '{print length}' )
+POS=$( expr ${COLS} - $( echo "${DATE_HDR}"|awk '{print length}') )
+printf "%s" "$DATE_HDR"
+printf "%${POS}s\n" "${MLEVEL_HDR}"
+
+MENU_LBL="Menu: "
+LEN=$( echo "${MENU_LBL}${MENUTITLE}"|awk '{print length}' )
+printf "${COLOR02}%s${COLOR03}%s" "${MENU_LBL}" "${MENUTITLE}"            
+# The whoami command broke on one linux host I had - so using id instead 
+#WHOAMI=`whoami | awk '{print $1}'`
+WHOAMI=`id|sed 's/[^(]*(\([^)]*\)).*/\1/'`
+SHOSTNAME=$(echo $(hostname)| sed "s/\..*//g" | tr '[A-Z]' '[a-z]')
+TTY=`tty`
+LEN=$[ ${LEN} + $( echo "${WHOAMI}@${SHOSTNAME} on: ${TTY}" | awk '{print length}' ) ]
+POS=$( expr ${COLS} - ${LEN} )
+printf "${COLOR04}%${POS}s" "For: "
+#printf "${COLOR05}%s${COLOR04}@${COLOR05}%s" "`whoami | awk '{print $1}'`" "$SHOSTNAME"
+printf "${COLOR05}%s${COLOR04}@${COLOR05}%s" "$WHOAMI" "$SHOSTNAME"
+printf "${COLOR04}%s${COLOR05}%s\n" " on: " "`tty`"
+printf "${COLOR06}${MLINE}\n"
+}
+# --------- EOFunction: doHEADER -----------
+
+#############
+getCHOICE ()
+#############
+{
+# Look to see if CHOICE already has an entry - this would be so if the
+# user included an option for a CHOICE on the command line - see
+# the handle_opts function.  If CHOICE is empty then prompt the user
+# for a CHOICE.
+if [ "x$CHOICE" = "x" ]; then
+   printf "${COLOR06}${MLINE}\n" 
+   CHOOSE_PROMPT="Please choose:"
+   printf "${COLOR09}${CHOOSE_PROMPT}"
+   LEN_CHOOSE_PROMPT=$( echo "${CHOOSE_PROMPT}"|awk '{print length}')
+   HLP_EXISTS_PROMPT="=Help file exists"
+   LEN_HLP_EXISTS=$( echo "${HLP_EXISTS_PROMPT}"|awk '{print length}')
+   LEN=$[ ${LEN_CHOOSE_PROMPT} + ${LEN_HLP_EXISTS} ]
+   POS=$( expr ${COLS} - ${LEN} )
+   printf "${COLOR06}%${POS}s${COLOR09}%s\n" "*" "${HLP_EXISTS_PROMPT}"
+
+   SELECT_PROMPT="(e)dit menu, e(x)pert,(h)elp,(c)olor,(C)ascading color,(r)ev color,(q)uit:"
+   ANS_PAD="_____"
+   printf "${COLOR09}%s" "${SELECT_PROMPT}"
+   #LEN=$( echo "${SELECT_PROMPT}"|awk '{print length}')
+   LEN=$[ $(echo "${SELECT_PROMPT}"|awk '{print length}') + $(echo "${ANS_PAD}"|awk '{print length}' ) ]
+   #LEN=$[ $LEN + 4 ]
+   POS=$(expr ${COLS} - ${LEN} )
+   printf "${COLOR01}%${POS}s\b\b\b" "_____"
+   read -e CHOICE
+   #echo POS=$POS LEN=$LEN
+fi
+
+case $CHOICE in
+   [q]) STATUS=false 
+        break
+				echo ${NORMAL}
+        #exit
+        ;;
+   [e]) editMENU 
+        ;;
+   [c]) toggleCOLOR 
+        ;;
+   [C]) toggleCCOLOR 
+        ;;
+	 [r]) 
+				if [ "$REVERSE_COLOR" = "YES" ]; then
+					REVERSE_COLOR="NO"
+					ORIG_EXPERT=$EXPERT		# Getting ready to set colors - but first
+									# turn off any verbose help etc
+					EXPERT="Y"
+					toggleCOLOR			# This function is called twice to set colors
+					toggleCOLOR			# Then restore to proper mode or state
+					EXPERT=$ORIG_EXPERT 		# Restore original expert state
+				else
+					REVERSE_COLOR="YES"
+					ORIG_EXPERT=$EXPERT		# Getting ready to set colors - but first
+									# turn off any verbose help etc
+					EXPERT="Y"
+					toggleCOLOR			# This function is called twice to set colors
+					toggleCOLOR			# Then restore to proper mode or state
+					EXPERT=$ORIG_EXPERT 		# Restore original expert state
+				fi
+				;;
+   [Xx]) toggleXPERT 
+        ;;
+   [Hh]) doHELP 
+        ;;
+   [0-9]|[0-9][0-9] )
+        do_choice $CHOICE
+        ;;
+esac
+
+# Clear the choice variable because it will automatically be invoked if
+# we come to this function with any thing in the CHOICE variable. See above.
+# This is so we can pass an option on the command line and directly invoke
+# a CHOICE - see the handleOPTS function.
+CHOICE=
+}
+# --------- EOFunction: getCHOICE ----------
+
+
+############
+chkID ()
+############
+{
+MIN_PARAMS=1
+ERRFLAG=${ERRFLAG:-99};[ $# -ge $MIN_PARAMS ] || doEXIT "Bad params [$FUNCNAME]"
+# param $* = list of acceptible users
+# example:
+# if chkID myname root webuser; then
+#    echo Good, the current user is in the acceptible list of users
+# else
+#    ERRFLAG=99
+#    doEXIT "You are not an approved user..."
+# fi
+#
+  while [ $1 ]; do
+    # consider "id -un" here - but is it portable?
+    if id | cut -d" " -f 1 | grep $1 >/dev/null; then
+      myERRFLAG=0
+      break
+    else
+      myERRFLAG=1
+      #doEXIT "You must be [$1] to use this script"
+    fi
+    shift
+  done
+  return $myERRFLAG
+}
+
+# ========= EOFunctions =====================
+
+##########################################
+# =========== Main Code ================ #
+##########################################
+handleOPTS $@
+doSETUP 
+makePURE_MENU 
+
+while [ "$STATUS" = true ]; do
+        clear
+	getMENU_TITLE < $MENUFILE$GMENUPID.pure.tmp
+	doHEADER
+        displaySELECTIONS < $MENUFILE$GMENUPID.pure.tmp
+	getCHOICE
+done
+
+echo ${NORMAL}
+clean_up
+clear
+exit 0
+# ========= EOF ============
