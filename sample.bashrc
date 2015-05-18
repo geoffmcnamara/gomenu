@@ -583,7 +583,7 @@ fi
 #fi
 alias vu=view
 
-alias scp="scp -c blowfish " # this is 20% faster on large files
+#alias scp="scp -c blowfish " # this is 20% faster on large files
 
 #########
 dirsum ()
@@ -3327,7 +3327,8 @@ sharedtty () # shared-tty - tail -f /tmp/$USER.`hostname`.`date +%Y%m%d
 # alternative:  
 # you start with: screen -S NAME 
 # make sure you have "multiuser on" in launch session .screenrc file
-# co-worker uses: screen -x NAME whenever either of you type in your screen both of you will see what is going on at the same time.
+# co-worker uses: screen -x NAME whenever either of you type in your 
+# screen both of you will see what is going on at the same time.
 DATE=`date +%Y%m%d`
 echo $LINE
 echo Another user/terminal can tail -f /tmp/$USER.`hostname`.${DATE}.out
