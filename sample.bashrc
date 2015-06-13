@@ -386,6 +386,11 @@ if [ -d /usr/ccs/bin ] ; then
   fi
 fi
 
+# make sure $HOME/bin is in the PATH
+if [ -d $HOME/bin ]; then
+  pathIT $HOME/bin
+fi
+
 # Set up version concurrent version system (CVS) stuff
 if [ -f $HOME/.SVN_Root_flag ]; then
   SVNROOT=`cat $HOME/.SVN_Root_flag`
