@@ -369,7 +369,9 @@ pathIT "$HOME/bin"
 manpathIT "/usr/man"
 
 # These make you look like you have root's PATH
+pathIT /bin
 pathIT /sbin
+pathIT /usr/bin
 pathIT /usr/sbin
 pathIT /usr/local/sbin
 if [ -d /usr/games ]; then
@@ -1723,6 +1725,17 @@ else
 fi
 }
 
+#######################################
+myip () # get my internet IP address
+#######################################
+{
+  dig +short myip.opendns.com @resolver1.opendns.com
+  # or
+  #dig TXT +short o-o.myaddr.l.google.com @ns1.google.com|sed s/\"//g
+  # or
+  #host myip.opendns.com resolver1.opendns.com
+}
+
 ###########################################################
 gwadd () # gw address default route
 ###########################################################
@@ -2994,11 +3007,14 @@ getweather ()
 {
   ZONE=vaz053
 # There are a couple of choices here...
-  doTITLE "Weather for ZONE=vaz053"``
+  #doTITLE "Weather for ZONE=vaz053"`` # fairfax
+  #URL=http://weather.noaa.gov/cgi-bin/iwszone?Sites=:$ZONE 
+  URL=http://forecast.weather.gov/MapClick.php?CityName=Elizabeth+City&state=NC&site=AKQ&textField1=36.296&textField2=-76.2206#.Va0e6R_iu00
   echo "This function has a preset variable for ZONE=$ZONE"
   echo "That ZONE variable is used if lynx is found..."
+  echo "Zone listings: https://alerts.weather.gov/cap/co.php?x=2"
   if type  -p lynx >/dev/null 2>&1; then
-    \lynx http://weather.noaa.gov/cgi-bin/iwszone?Sites=:$ZONE 
+    \lynx $URL
   else
     telnet rainmaker.wunderground.com 3000 
   fi
