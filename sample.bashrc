@@ -25,7 +25,7 @@
 # myphile
 #
 #####################################
-# $Id: sample.bashrc,v 1.501 2015/01/19 20:59:08 geoffm Exp $ 
+# $Id: sample.bashrc,v 1.502 2015/10/21 21:20:18 geoffm Exp $ 
 #####################################
 # Note: 
 #   There is a lot here.  I'm not a programmer, I am lazy.  This script
@@ -434,6 +434,11 @@ export DEV
 # You may want to set this to your own preferences for JAVA...
 #if ! env | grep JAVA_HOME >/dev/null ; then
 #  TMP_JAVA_HOME=/usr/java/jre1.3.1_01 # change this to the proper dir
+#  or consider
+#  If you installed JRE:
+#   export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+# If you installed JDK:
+#   export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))
 #  if [ -d $TMP_JAVA_HOME ]; then
 #    export JAVA_HOME=$TMP_JAVA_HOME
 #    export PATH=$PATH:$JAVA_HOME
