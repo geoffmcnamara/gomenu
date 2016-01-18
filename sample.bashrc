@@ -25,7 +25,7 @@
 # myphile
 #
 #####################################
-# $Id: sample.bashrc,v 1.502 2015/10/21 21:20:18 geoffm Exp $ 
+# $Id: sample.bashrc,v 1.503 2016/01/18 17:13:14 geoffm Exp $ 
 #####################################
 # Note: 
 #   There is a lot here.  I'm not a programmer, I am lazy.  This script
@@ -595,7 +595,6 @@ fi
 #fi
 alias vu=view
 
-#alias scp="scp -c blowfish " # this is 20% faster on large files
 
 #########
 dirsum ()
@@ -618,7 +617,8 @@ dus ()
 
 # See the function "dusp"
 
-alias scp="scp -c blowfish " # it 20% faster - what can I say
+#alias scp="scp -c blowfish " # this is 20% faster on large files but it has been removed from default ssh
+alias scpb="scp -c blowfish " # it 20% faster - what can I say
 
 # See exports above related to RCS (not CVS!) - JUST USE CVS!!!
 # Note that to check something in while leaving a read only copy use:
