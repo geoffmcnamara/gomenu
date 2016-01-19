@@ -3426,10 +3426,11 @@ scr () # short cut for screen
 {
 # if a $1 appears use that for the .screen config file to load
 # screen -c $1 # UNTESTED!
-if type -p byobu-launcher>/dev/null; then
-  byobu-launcher
-  return
-fi
+#### note buobu ignores .screenrc - for me that is unacceptible
+#if type -p byobu-launcher>/dev/null; then
+#  byobu-launcher
+#  return
+#fi
 echo Usage: scr 
 if [ x$1 = "x" ]; then
   SCR_NAME=scr-$USER
