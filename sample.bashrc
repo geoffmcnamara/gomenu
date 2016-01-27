@@ -1896,6 +1896,7 @@ sshkeypush () # pass your ssh public key to a remote host
 #########################################################
 {
 echo This mimics what ssh-copy-id user@host does
+echo But it has the advantage of creating the id_rsa.pub first.
 if [ "x$2" != "x" ]; then
   RUNAME=$1
   RHOST=$2
