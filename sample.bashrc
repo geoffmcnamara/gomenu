@@ -1353,7 +1353,7 @@ tlog () # tail a standard log
 FILE_STR=${1:-syslog} # this is a good default to debian - change as desired
 DIRS="/var/log /var/adm"
 CMD="tail -100f "  ### this is where the rubber meets the road ###
-LIST=`find -L $DIRS -name $FILE_STR\* -type f -a ! -name \*[0-9]\* -a ! -name \*.gz 2>/dev/null | grep -v install 2>/dev/null | sort`
+LIST=`find -L $DIRS -name $FILE_STR\* -type f -a ! -name \*\.[0-9]\* -a ! -name \*.gz 2>/dev/null | grep -v install 2>/dev/null | sort`
 # this next line does not seem to work....?
 trap 'echo $SLINE;echo Finished: $CMD $LIST;echo $SLINE' INT
 if [ `echo $LIST | wc -w` = 1 ]; then
@@ -3007,24 +3007,28 @@ while : ;do
 done
 }
 
-#############
+##############
 getweather ()
-#############
+##############
 {
-  ZONE=vaz053
-# There are a couple of choices here...
-  #doTITLE "Weather for ZONE=vaz053"`` # fairfax
-  #URL=http://weather.noaa.gov/cgi-bin/iwszone?Sites=:$ZONE 
-  URL=http://forecast.weather.gov/MapClick.php?CityName=Elizabeth+City&state=NC&site=AKQ&textField1=36.296&textField2=-76.2206#.Va0e6R_iu00
-  echo "This function has a preset variable for ZONE=$ZONE"
-  echo "That ZONE variable is used if lynx is found..."
-  echo "Zone listings: https://alerts.weather.gov/cap/co.php?x=2"
-  if type  -p lynx >/dev/null 2>&1; then
-    \lynx $URL
-  else
-    telnet rainmaker.wunderground.com 3000 
-  fi
-  doEXIT
+#  ZONE=vaz053
+## There are a couple of choices here...
+#  #doTITLE "Weather for ZONE=vaz053"`` # fairfax
+#  #URL=http://weather.noaa.gov/cgi-bin/iwszone?Sites=:$ZONE 
+#  URL=http://forecast.weather.gov/MapClick.php?CityName=Elizabeth+City&state=NC&site=AKQ&textField1=36.296&textField2=-76.2206#.Va0e6R_iu00
+#  echo "This function has a preset variable for ZONE=$ZONE"
+#  echo "That ZONE variable is used if lynx is found..."
+#  echo "Zone listings: https://alerts.weather.gov/cap/co.php?x=2"
+#  if type  -p lynx >/dev/null 2>&1; then
+#    \lynx $URL
+#  else
+#    telnet rainmaker.wunderground.com 3000 
+#  fi
+#  doEXIT
+curl -s wttr.in # w3m http://wttr.in/:help
+#if type -p weather >/dev/null ; then
+#  weather -i fips3720580 # use just weather -i search "your city"
+#fi
 }
 
 ###########
