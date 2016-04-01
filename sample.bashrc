@@ -986,13 +986,13 @@ setHOME () # setup home dir - EXPERIMENTAL
     echo Please install ssh ...
     return
   fi
-  if ! type -p cvs >/dev/null; then
-    echo Please install cvs...
+  VCTRL=git
+  if ! type -p $VCTRL >/dev/null; then
+    echo Please install $VCTRL ...
     return
   fi
 
   CHECKOUT_DIR=$HOME/dev/
-  #CHECKOUT_DIR=$HOME/dev/cvs
   if ! [ -d $CHECKOUT_DIR ]; then
     mkdir -p $CHECKOUT_DIR
   fi
@@ -1001,23 +1001,26 @@ setHOME () # setup home dir - EXPERIMENTAL
   CVSUSER=cvsuser
   CVS_HOST=hype.companionway.net
   CVS_REPOS=/data/share/cvsroot
+  VUSER=$USER
+  VHOST=hype.companionway.net
+  VREPO=/data/gitroot
 
-  printf "Please indicate what user you would like for the cvs access [${CVSUSER}]: " 
-  read myCVSUSER
-  if [ x"$myCVSUSER" != "x" ]; then CVSUSER=$myCVSUSER; fi
+  #printf "Please indicate what user you would like for the cvs access [${CVSUSER}]: " 
+  #read myCVSUSER
+  #if [ x"$myCVSUSER" != "x" ]; then CVSUSER=$myCVSUSER; fi
 
-  printf "Please indicate what host you would like for the cvs access [${CVS_HOST}]: " 
-  read myCVS_HOST
-  if [ x"$myCVS_HOST" != "x" ]; then CVSUSER=$myCVS_HOST; fi
+  #printf "Please indicate what host you would like for the cvs access [${CVS_HOST}]: " 
+  #read myCVS_HOST
+  #if [ x"$myCVS_HOST" != "x" ]; then CVSUSER=$myCVS_HOST; fi
 
   #echo See the sample .bashrc for ${CVSUSER} password...
   
   if ! [ -d $CHECKOUT_DIR/gomenu ]; then
-    processCMD setcvs
-    if [ ! -f ~/.CVS_Root_flag ]; then
-      echo ":ext:${CVSUSER}@${CVS_HOST}:${CVS_REPOS}">~/.CVS_Root_flag
+    #processCMD setcvs
+    #if [ ! -f ~/.CVS_Root_flag ]; then
+    #  echo ":ext:${CVSUSER}@${CVS_HOST}:${CVS_REPOS}">~/.CVS_Root_flag
       #processCMD sshkeypush ${CVSUSER} ${CVS_HOST}
-    fi
+    #fi
 
     echo This is used only to get the first ${CHECKOUT_DIR}/.bashrc source file.
     # don't change the user below...
@@ -1025,11 +1028,18 @@ setHOME () # setup home dir - EXPERIMENTAL
     #processCMD source .bashrc
 
     processCMD cd $CHECKOUT_DIR # not needed but makes it clear
-    processCMD cvs co gomenu utils vim
+    #processCMD cvs co gomenu utils vim
+    processCMD $VCTRL clone $VHOST:$VREPO/gomenu.git
   else
-    echo It appears that $CHECKOUT_DIR/gomenu exits...
+    echo It appears that $CHECKOUT_DIR/gomenu exists...
   fi
 
+  if ! [ -d $CHECKOUT_DIR/vim ]; then
+    processCMD $VCTRL clone $VHOST:$VREPO/vim.git
+  fi
+  #if ! [ -d $CHECKOUT_DIR/utils ]; then
+  #  processCMD $VCTRL clone $VHOST:$VREPO/utils
+  #fi
   if ! [ -h $HOME/.bashrc ]; then
     [ -f $HOME/.bashrc ] && mv $HOME/.bashrc $HOME/.bashrc.`date +%Y%m%d-%H%M`
     processCMD ln -s $CHECKOUT_DIR/gomenu/sample.bashrc $HOME/.bashrc
@@ -1053,7 +1063,7 @@ setHOME () # setup home dir - EXPERIMENTAL
   fi
 
   cd
-  echo Consider running: sshkeypush $CVSUSER companionway.net if needed
+  #echo Consider running: sshkeypush $CVSUSER companionway.net if needed
 }
 
 ##########
