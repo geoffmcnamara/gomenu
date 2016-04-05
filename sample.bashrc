@@ -1251,7 +1251,6 @@ if [ "x$1" = "x-s" ]; then
   #echo DEBUG: 1st param is -s and BASE_DIR=[$BASE_DIR] DIR=[$DIR] NEW_NAME=[$NEW_NAME]
 fi
 
-
 if [ "x$1" = "x-o" ] && [ -f "$2" -o -d "$2" ]; then
   # these blocks are to rename file to OLD.filename
   if [ -d $2 ]; then
@@ -1264,7 +1263,8 @@ if [ "x$1" = "x-o" ] && [ -f "$2" -o -d "$2" ]; then
   fi
   BASENAME=$(basename $2)
   OLD_NAME=$2
-  NEW_NAME=OLD.$BASENAME 
+  NEW_NAME=OLD.${BASENAME} 
+  echo DEBUG: DIR=$DIR BASENAME=$BASENAME OLD_NAME=$OLD_NAME NEW_NAME=$NEW_NAME
 fi
 
 if [ "x$1" = "x-O" ] && [ -f "$2" -o -d "$2" ]; then
@@ -1292,7 +1292,8 @@ OLD_NAME=${OLD_NAME:-$1}
 NEW_NAME=${NEW_NAME:-$BASENAME.$DTIME}
 
 #echo DEBUG: BASE_DIR=[$BASE_DIR] DIR=[$DIR] BASENAME=[$BASENAME] DIR=[$DIR] NEW_NAME=[$NEW_NAME]
-processCMD mv $BASE_DIR/"$OLD_NAME" $DIR/$NEW_NAME
+#processCMD mv $BASE_DIR/"$BASENAME" $DIR/$NEW_NAME
+processCMD mv $OLD_NAME $DIR/$NEW_NAME
 [ $? -eq 0 ] && echo $BASENAME has been moved to $DIR/$NEW_NAME|sed "s#\/\/#\/#" || echo move failed...
 
 return
