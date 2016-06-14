@@ -609,9 +609,9 @@ alias sdus="sudo du -sk ./ | sort -n"
 dus ()
 {
   if [ x$1 = x-h ]; then
-    du -sh $2 * | sort -n
+    du -sh $2/* | sort -n
   else
-    du -sk $1 * | sort -n
+    du -sk $1/* | sort -n
   fi
 }
 
@@ -710,7 +710,7 @@ if type -p devtodo >/dev/null; then
   }
   
   # now fire it up on login
-  # actually I put this in the .bash_local file now
+  # actually I put this in the .bash_local or .bashrc_local file now
   #processCMD devtodo children
 fi
 #### end todo package settings ###
@@ -786,26 +786,26 @@ SLINE="-------------------------------------------------------------"
 #if [ "$OS" = "sun" ] && [ "$TERM" = "linux" ]; then
 #  TERM=vt100
 #fi
-if [ "x$TERM" = "x" ]; then
-  TERM=vt100
-  #echo TERM=$TERM
-fi
+case $TERM in
+  vt100)
+    TERM=vt100
+    ;;
+  sun | dtterm | cygnus | hp)
+    TERM=vt100
+    ;;
+  screen)
+    export PROMPT_COMMAND='echo -ne "/033k$HOSTNAME/033//"'
+    ;;
+  * )
+    TERM=vt100
+    ;;
+esac
 
 if [ "$OS" != "linux" ] && [ "$TERM" = "linux" ]; then
   TERM=vt100
   #echo TERM=$TERM
 fi
 
-if [ "$TERM" = "sun" ]    || \
-   [ "$TERM" = "dtterm" ] || \
-   [ "$TERM" = "cygnus" ] || \
-   [ "$TERM" = "hp" ]     ; then
-   #[ "$TERM" = "screen" ] ; then
-  # just get rid of problems from vendor specific term settings
-  TERM=vt100
-  #echo TERM=$TERM
-   #[ "$TERM" = "Eterm" ] || \
-fi
 if [ "$OS" = "sun" ] && [ "$TERM" = "screen" ]; then
   TERM=vt100
   SCR="YES"
@@ -2937,32 +2937,35 @@ echo This is your new CVSROOT: [$CVSROOT]
 doEXIT
 }
 
+###########
 if  alias |grep del= >/dev/null ; then
   unalias del
 fi
+###########
+
 ###########################################################
 del () # sends files to $HOME/trash (safer than rm)
 ###########################################################
-# deletes file to /trash dir (ala Win95 etc) - just moves the file
+# deletes file to /trash dir ala Win95 etc - just moves the file
 {
-doTITLE "Moving $1 to $HOME/trash"
-if [ ! -d $HOME/trash ]; then
-  processCMD mkdir $HOME/trash
-fi
+  doTITLE "Moving $1 to $HOME/trash"
+  if [ ! -d $HOME/trash ]; then
+    processCMD mkdir $HOME/trash
+  fi
   processCMD mv $1 $HOME/trash
   doEXIT File removed to trash directory...
 }
 
-#########
-docs () # docs TOPIC - cd to /usr/share/doc/TOPIC
-#########
-{
-  if [ -d /usr/share/doc/$1 ] ; then
-    processCMD cd /usr/share/doc/$1
-  else
-    echo Failed to find /usr/share/doc/$1
-  fi
-}
+##########
+#docs () # docs TOPIC - cd to /usr/share/doc/TOPIC
+##########
+#{
+#  if [ -d /usr/share/doc/$1 ] ; then
+#    processCMD cd /usr/share/doc/$1
+#  else
+#    echo Failed to find /usr/share/doc/$1
+#  fi
+#}
 
 ###########################################################
 llsm () # lists filename [long] where it was modified on a particular date
@@ -3063,11 +3066,18 @@ xbar () # puts new label on Xwindow title bar and icon
     echo ]1\;$*
     echo "  Setting icon label... "
     echo ]2\;$*
+    if [ x$TMUX != "x" ]; then
+      echo "Setting tmux window name... "
+      tmux rename-window $1
+    fi
   else 
     echo "  Setting title... "
     echo ]1\;$LOGNAME@$HOSTNAME
     echo "  Setting icon label... "
     echo ]2\;$LOGNAME@$HOSTNAME
+    if [ x$TMUX != "x" ]; then
+      tmux rename-window $LOGNAME@$HOSTNAME
+    fi
   fi
   #The title of a XTERM window can be set using the following
   #escape sequence:
@@ -3558,7 +3568,7 @@ fi
 # alias content="cd /data/content"
 # alias myapt=apt.sh # this is a wrapper script for apt that I wrote
 MYHOME=$HOME # change this as you see fit
-if [ -f $MYHOME/.bash_local ]; then
+if [ -f $MYHOME/.bash_local ] ; then
   source $MYHOME/.bash_local
 else
   echo "### this file created by .bashrc - add what you want ###">>$MYHOME/.bash_local
