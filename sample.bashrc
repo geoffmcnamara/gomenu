@@ -350,7 +350,7 @@ else
   #echo DEBUG env; env | grep COLOR
 fi 
 
-# Added this one on a recommendation for making slang based programs 
+# Added this one on a recommenDAtion for making slang based programs 
 #    work better
 #export  COLORFGBG="default;default"
 
@@ -1003,7 +1003,8 @@ setHOME () # setup home dir - EXPERIMENTAL
   CVS_REPOS=/data/share/cvsroot
   VUSER=$USER
   VHOST=hype.companionway.net
-  VREPO=/data/gitroot
+  #VREPO=/data/gitroot
+  VREPO=/data/share/gitrepo
 
   #printf "Please indicate what user you would like for the cvs access [${CVSUSER}]: " 
   #read myCVSUSER
