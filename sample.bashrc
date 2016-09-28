@@ -1240,6 +1240,7 @@ DIR=""
 BASE_DIR=""
 BASENAME=""
 
+## use -s to remove spaces
 if [ "x$1" = "x-s" ]; then
   # remove spaces - replace with a dash "-"
   NOSPACES_NAME=`echo $2 | tr " " "-"`
@@ -1252,6 +1253,7 @@ if [ "x$1" = "x-s" ]; then
   #echo DEBUG: 1st param is -s and BASE_DIR=[$BASE_DIR] DIR=[$DIR] NEW_NAME=[$NEW_NAME]
 fi
 
+## use -o to move to OLD.filename
 if [ "x$1" = "x-o" ] && [ -f "$2" -o -d "$2" ]; then
   # these blocks are to rename file to OLD.filename
   if [ -d $2 ]; then
@@ -1268,6 +1270,7 @@ if [ "x$1" = "x-o" ] && [ -f "$2" -o -d "$2" ]; then
   echo DEBUG: DIR=$DIR BASENAME=$BASENAME OLD_NAME=$OLD_NAME NEW_NAME=$NEW_NAME
 fi
 
+## use -O to move to ORIG.filename
 if [ "x$1" = "x-O" ] && [ -f "$2" -o -d "$2" ]; then
   # these blocks are to rename file to ORIG.filename
   if [ -d $2 ]; then
@@ -1283,11 +1286,16 @@ if [ "x$1" = "x-O" ] && [ -f "$2" -o -d "$2" ]; then
   NEW_NAME=ORIG.$BASENAME 
 fi
 
+## default is to move to filename.$DTIME
 # to deal with default or one of the above
-#BASE_DIR=${BASE_DIR:-`dirname $1`}
-DIR=${DIR:-"$BASE_DIR"}
+BASE_DIR=${BASE_DIR:-`dirname $1`}
 if [ -f $1 ]; then
   BASENAME=${BASENAME:-`basename $1`}
+fi
+if [ x$2 != x ] && [ -d $2 ]; then
+  DIR=$2
+else
+  DIR=$BASE_DIR
 fi
 OLD_NAME=${OLD_NAME:-$1}
 NEW_NAME=${NEW_NAME:-$BASENAME.$DTIME}
@@ -1295,8 +1303,7 @@ NEW_NAME=${NEW_NAME:-$BASENAME.$DTIME}
 #echo DEBUG: BASE_DIR=[$BASE_DIR] DIR=[$DIR] BASENAME=[$BASENAME] DIR=[$DIR] NEW_NAME=[$NEW_NAME]
 #processCMD mv $BASE_DIR/"$BASENAME" $DIR/$NEW_NAME
 processCMD mv $OLD_NAME $DIR/$NEW_NAME
-[ $? -eq 0 ] && echo $BASENAME has been moved to $DIR/$NEW_NAME|sed "s#\/\/#\/#" || echo move failed...
-
+[ $? -eq 0 ] && echo $BASENAME has been moved to $DIR/$NEW_NAME | sed "s#\/\/#\/#" || echo move failed...
 return
 }
 
