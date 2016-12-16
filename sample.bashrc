@@ -982,6 +982,7 @@ setHOME () # setup home dir - EXPERIMENTAL
 {
   echo Puts the latest .bashrc in ~/dev and then gets Companionway gomenu and vim pkgs
   echo and links .bashrc .vimrc and .screenrc to the home dir.
+  echo Asks if you want the dev/utils scripts as well 
   if ! type -p ssh >/dev/null; then
     echo Please install ssh ...
     return
@@ -998,9 +999,9 @@ setHOME () # setup home dir - EXPERIMENTAL
   fi
 
   processCMD cd $CHECKOUT_DIR
-  CVSUSER=cvsuser
-  CVS_HOST=hype.companionway.net
-  CVS_REPOS=/data/share/cvsroot
+  #CVSUSER=cvsuser
+  #CVS_HOST=hype.companionway.net
+  #CVS_REPOS=/data/share/cvsroot
   VUSER=$USER
   VHOST=hype.companionway.net
   #VREPO=/data/gitroot
@@ -1063,6 +1064,9 @@ setHOME () # setup home dir - EXPERIMENTAL
     echo It appears that ~/.screenrc is linked...
   fi
 
+  if askYN "Do you want to get the ~/dev/utils scripts?" y; then
+    processCMD $VCTRL clone $VHOST:$VREPO/utils.git
+  fi
   cd
   #echo Consider running: sshkeypush $CVSUSER companionway.net if needed
 }
@@ -3192,6 +3196,31 @@ txt2html () # Convert a text file to an html doc
   ' $1
 }
 
+#######
+batt ()
+#######
+{
+  upower -i `upower -e | grep BAT`
+}
+
+########
+bcalc ()
+########
+{
+  #if [ x$1 = x ]; then
+  #  echo Examples: bcalc \"\(3*4\)/5\"
+  #  echo or to get the sine of 16: bcalc "s(16)"
+  #  return
+  #fi
+  #scale=$1 ; shift
+  scale=2 
+  cat << EOF | bc -l
+  scale=$scale
+  $*
+EOF
+}
+
+
 ########
 calcit() # command line calculator
 ########
@@ -3532,12 +3561,20 @@ if [ "x$1" = "x" ]; then
 fi
 }
 
-npsudo ()
+##########
+fixsudo ()
+##########
 {
 #nopass sudo
 #eg yourname ALL=(ALL) NOPASSWD: ALL
 echo Add the following \(or similar\) to /etc/sudoers
 echo $USER ALL=\(ALL\) NOPASSWD: ALL 
+echo or better yet add that line with...
+echo sudo visudo -f /etc/sudoers.d/$USER
+### wip ### untested
+# if askYN "Do you want this done for you?" n;then
+#echo $USER ALL=\(ALL\) NOPASSWD: ALL > /etc/sudoers.d/$USER
+#fi
 }
 
 ##########
@@ -3628,6 +3665,4 @@ fi
 
 # ======== End .bashrc =========
 
-PATH=$PATH:/usr/share/ruby-rvm/bin # Add RVM to PATH for scripting
-
-export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+#export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
