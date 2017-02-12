@@ -1038,6 +1038,13 @@ setHOME () # setup home dir - EXPERIMENTAL
 
   if ! [ -d $CHECKOUT_DIR/vim ]; then
     processCMD $VCTRL clone $VHOST:$VREPO/vim.git
+    if ! type -p vim; then 
+      if askYN " Do you want to sudo apt install vim? " y; then
+        processCMD sudo apt install vim
+      else
+        echo "You need to install vim please"
+      fi
+    fi
   fi
   #if ! [ -d $CHECKOUT_DIR/utils ]; then
   #  processCMD $VCTRL clone $VHOST:$VREPO/utils
@@ -3571,6 +3578,15 @@ echo Add the following \(or similar\) to /etc/sudoers
 echo $USER ALL=\(ALL\) NOPASSWD: ALL 
 echo or better yet add that line with...
 echo sudo visudo -f /etc/sudoers.d/$USER
+echo "------ or -------"
+echo "$USER ALL=(ALL) NOPASSWD: ALL" >$HOME/sudoers.$USER
+echo Just created $HOME/sudoers.$USER
+echo Now copy this file to /etc/sudoers.d
+if askYN "Do you want to try using sudo now and copy the file over?" y; then
+  sudo cp -v $HOME/sudoers.$USER /etc/sudoers.d/$USER
+  ls -l /etc/sudoers.d/$USER
+  echo Done...
+fi
 ### wip ### untested
 # if askYN "Do you want this done for you?" n;then
 #echo $USER ALL=\(ALL\) NOPASSWD: ALL > /etc/sudoers.d/$USER
@@ -3579,6 +3595,7 @@ echo sudo visudo -f /etc/sudoers.d/$USER
 
 ##########
 #fixsudoers () # WIP 
+##########
 #{
 # see fixsudoers.sh
 #  # sudo cat /etc/sudoers| awk '/^%sudo/{for (i=1;i<NF;i++)printf "%s ",$i;print "NOPASSWD: "$NF}'
