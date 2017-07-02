@@ -2511,6 +2511,7 @@ awkcols ()  # print out one or more columns
 ##########################################
 # This one may be more appropriate as it just hits text based file
 {
+  # awk -vcols=$COLS '{for (i=$cols;i<=NF;i++) print $i" "}'
 if [ "x$1" = "x" ]; then
   echo "Usage: cat file | awkcols [-d DELIMINATOR] #,#,#,#..."
 else
@@ -3683,3 +3684,6 @@ fi
 # ======== End .bashrc =========
 
 #export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+
+# added by Anaconda3 4.3.1 installer
+export PATH="/home/geoffm/anaconda3/bin:$PATH"
