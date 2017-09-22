@@ -3612,6 +3612,15 @@ fi
 #ruby -ne @found=true if $_ =~ /$1/; next unless @found; puts $_; exit if $_ =~ /$2/
 #}
 
+######
+cpustat ()
+######
+{
+	#echo idle: $(vmstat 1 2|tail -1|awk '{print $15}')%
+	echo load: $[100-$(vmstat 1 2|tail -1|awk '{print $15}')]%
+  top -b | head
+}
+
 ####### EOB FUNCTIONS ##########
 
 #################################
@@ -3680,6 +3689,7 @@ if type -p figlet>/dev/null; then
     echo "figlet Enjoy">~/.bash_logout
   fi
 fi
+
 
 # ======== End .bashrc =========
 

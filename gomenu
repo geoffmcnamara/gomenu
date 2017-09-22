@@ -738,7 +738,7 @@ chmod +x $MENURUNFILE
 clear
 eval $SHELL $MENURUNFILE  # This is where the rubber hits the road
 
-# Tried all these below... with no failures
+# Tried all these below... with no failures but...
 #eval $MENURUNFILE  # This one fails with options on submenus
 #eval exec $MENURUNFILE  # This one fails to ever come back
 #eval $SHELL $MENURUNFILE  # This one loads the shell unnecessarily
