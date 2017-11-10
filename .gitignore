@@ -1,5 +1,7 @@
+.gitignore
 *.*~
 .*.swp
 .#*
 CVS*
 .cvsignore
+git-daemon-export-ok
