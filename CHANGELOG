@@ -1,0 +1,831 @@
+2002-02-06 12:27  geoffm
+
+	* README: Changes made to README for notes on shared menus 
+
+2002-02-04 07:29  geoffm
+
+	* sample.bashrc: Minor change to ldict () 
+
+2002-02-01 18:53  geoffm
+
+	* gomenu: Added addition info to the -s error message...  
+
+2002-02-01 10:28  geoffm
+
+	* CHANGELOG, gomenu: Minor typo fixes 
+
+2002-02-01 10:22  geoffm
+
+	* CHANGELOG: [no log message] 
+
+2002-02-01 10:19  geoffm
+
+	* gomenu: [no log message] 
+
+2002-02-01 10:13  geoffm
+
+	* CHANGELOG, README, gomenu: Removed some extraneous lines 
+
+2002-02-01 10:11  geoffm
+
+	* CHANGELOG, README: Removed CHANGES file 
+
+2002-02-01 10:06  geoffm
+
+	* CHANGELOG, CHANGELOG, CHANGES: [no log message] 
+
+2002-02-01 10:03  geoffm
+
+	* CHANGELOG, gomenu: Changed CHANGELOG to cvs tracking and minor
+	change to LASTMOD variable in gomenu Shared menus are now included
+	with a -s parameter.  Docs still need to be changed to include this
+	feature and more testing before it is declared stable.  Also removed
+	the tput color methods and returned to the ansi method.  
+
+2002-01-31 15:13  geoffm
+
+	* gomenu: Changed doUSAGE to include -s for shared menus 
+
+2002-01-31 15:08  geoffm
+
+	* README, gomenu, sample.bashrc: Added shared menu capability -
+	untested 
+
+2002-01-06 20:49  cvsuser
+
+	* sample.bashrc: Minor fix of tmsgs 
+
+2002-01-03 09:29  geoffm
+
+	* sample.bashrc: Changed tmsgs a little...  
+
+2001-12-29 15:52  geoffm
+
+	* sample.bashrc: [no log message] 
+
+2001-12-14 14:30  geoffm
+
+	* sample.bashrc: FIxed some PATH statements 
+
+2001-12-13 07:19  geoffm
+
+	* sample.bashrc: Fixed some PATH statements and removed the $Log
+	statement Also changed the lspath to a simpler technique 
+
+2001-11-19 10:24  geoffm
+
+	* gomenu: Corrected minor spelling error in help output...  
+
+2001-11-19 10:21  geoffm
+
+	* gomenu: Woops - got rid of some debugging code in handleOPTS 
+
+2001-11-11 09:58  geoffm
+
+	* sample.bashrc: Changed nsdump to use dig instead of host 
+
+2001-11-11 09:53  geoffm
+
+	* sample.bashrc: Change nsdump to use host instead of nslookup 
+
+2001-10-30 17:06  cvsuser
+
+	* sample.bashrc: Added a little note about how to calculate the
+	dirname with bash and ksh 
+
+2001-10-30 14:06  cvsuser
+
+	* sample.bashrc: Moved DTIME var back into the function where it is
+	called to keep it current 
+
+2001-10-29 17:46  cvsuser
+
+	* sample.bashrc: Added a note about other ways to determine
+	basename...  
+
+2001-10-22 09:12  geoffm
+
+	* sample.bashrc: Still tweaking replaceit function...  
+
+2001-10-22 09:05  geoffm
+
+	* sample.bashrc: Added some error checking to the replaceit
+	function ...  
+
+2001-10-16 19:34  geoffm
+
+	* sample.bashrc: MovedDTIME variable to global variable status...  
+
+2001-10-14 09:38  geoffm
+
+	* gomenu: [no log message] 
+
+2001-10-12 12:23  cvsuser
+
+	* sample.bashrc, sample.bashrc: [no log message] 
+
+2001-10-12 12:12  cvsuser
+
+	* sample.bashrc: [no log message] 
+
+2001-10-12 12:08  cvsuser
+
+	* sample.bashrc: Changed pss () to use -o with params defined.  
+
+2001-10-11 15:53  cvsuser
+
+	* sample.bashrc: Aesthetic improvement to killike() 
+
+2001-10-09 09:59  geoffm
+
+	* sample.bashrc: Changed replaceit back to the sed method ...  
+
+2001-10-02 07:59  cvsuser
+
+	* sample.bashrc: Improved parsing for lsfuncs...  
+
+2001-10-02 07:55  cvsuser
+
+	* sample.bashrc: [no log message] 
+
+2001-09-30 14:45  geoffm
+
+	* sample.bashrc: Tweaked lf and lfall functions...  
+
+2001-09-29 12:09  geoffm
+
+	* sample.bashrc: Changed doTITLE and doSUBTITLE and changed ldict 
+
+2001-09-29 08:04  geoffm
+
+	* sample.bashrc: Lots of changes - addition of doTITLE and doEXIT
+	to most functions 
+
+2001-09-15 16:17  geoffm
+
+	* sample.bashrc: Tweaked the JAVA_HOME stuff 
+
+2001-09-01 13:06  cvsuser
+
+	* sample.bashrc: Added doTITLE and doSUBTITLE functions...  
+
+2001-08-31 10:44  cvsuser
+
+	* sample.bashrc: Change killike slightly...  
+
+2001-08-30 12:15  cvsuser
+
+	* sample.bashrc: dded lsplmods () to list perl modules...  
+
+2001-08-29 15:40  cvsuser
+
+	* sample.bashrc: dded JAVA_HOME export to this script 
+
+2001-08-26 08:36  geoffm
+
+	* sample.bashrc: Added a comment about resetting your terminal.  
+
+2001-08-03 21:23  geoffm
+
+	* sample.bashrc: [no log message] 
+
+2001-08-03 20:58  geoffm
+
+	* sample.bashrc: [no log message] 
+
+2001-07-30 23:04  geoffm
+
+	* sample.bashrc: Change llsm and lsm function....  
+
+2001-07-26 08:05  cvsuser
+
+	* sample.bashrc: Changed color back to ESC codes from tput - it is
+	faster and works with scp - tput was way too TERM dependant...  
+
+2001-07-25 07:43  geoffm
+
+	* sample.bashrc: Added notes only to the psg () function 
+
+2001-07-21 06:33  geoffm
+
+	* sample.bashrc: Fixed TERM checks some more 
+
+2001-07-19 18:17  geoffm
+
+	* sample.bashrc: Repaired TERM stuff AGAIN! 
+
+2001-07-17 13:52  geoffm
+
+	* sample.bashrc: Change the saveit function...  
+
+2001-07-17 12:26  geoffm
+
+	* sample.bashrc: Fixed a TERM problem with ssh to Solaris and the
+	tput commands Also fixed the id command use on Solaris 
+
+2001-07-15 11:09  geoffm
+
+	* sample.bashrc: Added doEXIT and saveit () 
+
+2001-07-14 20:54  geoffm
+
+	* sample.bashrc: Added the setvim () function 
+
+2001-07-08 10:36  geoffm
+
+	* sample.bashrc: Changed rpmvu to rpm -qpl 
+
+2001-07-05 13:01  cvsuser
+
+	* sample.bashrc: Fixed the ls sorting problem introduced with
+	RedHat 7.1 
+
+2001-07-05 12:58  cvsuser
+
+	* gomenu: Fixed the SHOSTNAME problem on non-linux machines (it was
+	serious!) It used hostname -s and on other boxes, it would change
+	the hostname of the box to "-s" ! 
+
+2001-06-14 20:48  geoffm
+
+	* gomenu: Changed to shabang of bash...  
+
+2001-06-11 13:29  geoffm
+
+	* gomenu, sample.bashrc: [no log message] 
+
+2001-06-10 11:02  geoffm
+
+	* inetcmd.exp: Strengthened the security msg in inetcmd.exp 
+
+2001-06-10 10:57  geoffm
+
+	* inetcmd.exp: Added version tags to inetcmd.exp 
+
+2001-06-10 10:50  cvsuser
+
+	* sample.bashrc: Changed the NORMAL termcap code to properly reset
+	colors 
+
+2001-06-09 17:26  cvsuser
+
+	* sample.bashrc: Minor repair to color defs 
+
+2001-06-09 15:51  cvsuser
+
+	* sample.bashrc: Made some changes to the setcvs ()...  
+
+2001-06-09 14:49  cvsuser
+
+	* sample.bashrc: Changed color references to tput TERM commands -
+	thanks Bruce Verderaime! 
+
+2001-06-07 21:48  cvsuser
+
+	* sample.bashrc: Fixed the ed script in replaceit () 
+
+2001-06-07 21:01  cvsuser
+
+	* sample.bashrc: Lots of changes to setcvs and to setbell ans some
+	to replaceit.  
+
+2001-06-07 17:14  cvsuser
+
+	* sample.bashrc: Changed set-cvs to work better with Solaris 
+
+2001-06-05 15:37  cvsuser
+
+	* sample.bashrc: Added a test for ls alias 
+
+2001-06-04 16:49  cvsuser
+
+	* sample.bashrc: Repaired the set-cvs function... should work
+	properly now.  
+
+2001-06-02 18:12  cvsuser
+
+	* sample.bashrc: Will create $HOME/tmp if needed...  
+
+2001-05-27 17:11  cvsuser
+
+	* sample.bashrc: Added the count of occurances to replaceit () 
+
+2001-05-27 13:46  cvsuser
+
+	* sample.bashrc: Minor cosmetic change to replaceit () 
+
+2001-05-23 20:14  cvsuser
+
+	* sample.bashrc: Removed PRJ directory - made tkcvs use DEV
+	directory instead.  
+
+2001-05-22 20:19  geoffm
+
+	* sample.bashrc: Added making $PRJ and $DEV dir if not present
+	already 
+
+2001-05-22 20:14  geoffm
+
+	* sample.bashrc: Added -p to type calls nad changed PRJ and DEV
+	variables, also deleted the common CVSROOT - changed it to blank
+	from my home cvs dir (gwm) 
+
+2001-05-21 20:42  geoffm
+
+	* sample.bashrc: Added askYN and set-cvs functions...  
+
+2001-05-18 23:21  geoffm
+
+	* gomenu: Slightly changed the Ver: display  heading 
+
+2001-05-18 23:09  geoffm
+
+	* gomenu: [no log message] 
+
+2001-05-18 23:08  geoffm
+
+	* gomenu: Changed VERSION and LASTMOD variables 
+
+2001-05-18 22:18  geoffm
+
+	* sample.bashrc: Change all references of awk to $AWK_CMD...  
+
+2001-05-18 22:10  geoffm
+
+	* sample.bashrc: Did an rcv ci and then co -u first to get ident
+	tags working...  
+
+2001-05-17 22:14  geoffm
+
+	* sample.bashrc: [no log message] 
+
+2001-05-17 22:02  geoffm
+
+	* sample.bashrc: Changed sample bashrc 
+
+2001-05-17 21:59  geoffm
+
+	* sample.bashrc: Added sample.bashrc 
+
+2001-05-17 21:58  geoffm
+
+	* sample.bashrc: removed sample.bashrc but will restore it later 
+
+2001-05-17 21:53  geoffm
+
+	* sample.bashrc: [no log message] 
+
+2001-05-17 21:46  geoffm
+
+	* sample.bashrc, sample.bashrc: [no log message] 
+
+2001-05-17 21:44  geoffm
+
+	* sample.bashrc: Fixed Revision and Date again 
+
+2001-05-17 21:29  geoffm
+
+	* sample.bashrc: Fixed lsfuncs-problems with finding .bashrc...  
+
+2001-05-17 21:24  geoffm
+
+	* sample.bashrc: Fixed Revision and Date ident tags...  
+
+2001-05-17 21:21  geoffm
+
+	* gomenu: Fixed Revision and Date ident tags...  
+
+2001-05-17 21:00  geoffm
+
+	* CHANGELOG, CHANGES, COPYING, README, TODO, gomenu, inetcmd.exp,
+	sample.bashrc: Initial revision 
+
+2001-05-17 21:00  geoffm
+
+	* CHANGELOG, CHANGES, COPYING, README, TODO, gomenu, inetcmd.exp,
+	sample.bashrc: [no log message] 
+
+=======
+2002-02-17 14:24  geoffm
+
+	* CHANGELOG, gomenu: Added reverse color capability to menu
+	selections 
+
+2002-02-17 11:24  geoffm
+
+	* sample.bashrc: Added lb and db options to setcolor function 
+	* lb = for light background term session 
+	* db = for dark background term session 
+
+2002-02-15 17:47  geoffm
+
+	* gomenu: Added the -r option for light color back ground terms 
+
+2002-02-06 12:27  geoffm
+
+	* README: Changes made to README for notes on shared menus 
+
+2002-02-04 07:29  geoffm
+
+	* sample.bashrc: Minor change to ldict () 
+
+2002-02-01 18:53  geoffm
+
+	* gomenu: Added addition info to the -s error message...  
+
+2002-02-01 10:28  geoffm
+
+	* CHANGELOG, gomenu: Minor typo fixes 
+
+2002-02-01 10:22  geoffm
+
+	* CHANGELOG: [no log message] 
+
+2002-02-01 10:19  geoffm
+
+	* gomenu: [no log message] 
+
+2002-02-01 10:13  geoffm
+
+	* CHANGELOG, README, gomenu: Removed some extraneous lines 
+
+2002-02-01 10:11  geoffm
+
+	* CHANGELOG, README: Removed CHANGES file 
+
+2002-02-01 10:06  geoffm
+
+	* CHANGELOG, CHANGELOG, CHANGES: [no log message] 
+
+2002-02-01 10:03  geoffm
+
+	* CHANGELOG, gomenu: Changed CHANGELOG to cvs tracking and minor
+	change to LASTMOD variable in gomenu Shared menus are now included
+	with a -s parameter.  Docs still need to be changed to include this
+	feature and more testing before it is declared stable.  Also removed
+	the tput color methods and returned to the ansi method.  
+
+2002-01-31 15:13  geoffm
+
+	* gomenu: Changed doUSAGE to include -s for shared menus 
+
+2002-01-31 15:08  geoffm
+
+	* README, gomenu, sample.bashrc: Added shared menu capability -
+	untested 
+
+2002-01-06 20:49  cvsuser
+
+	* sample.bashrc: Minor fix of tmsgs 
+
+2002-01-03 09:29  geoffm
+
+	* sample.bashrc: Changed tmsgs a little...  
+
+2001-12-29 15:52  geoffm
+
+	* sample.bashrc: [no log message] 
+
+2001-12-14 14:30  geoffm
+
+	* sample.bashrc: FIxed some PATH statements 
+
+2001-12-13 07:19  geoffm
+
+	* sample.bashrc: Fixed some PATH statements and removed the $Log
+	statement Also changed the lspath to a simpler technique 
+
+2001-11-19 10:24  geoffm
+
+	* gomenu: Corrected minor spelling error in help output...  
+
+2001-11-19 10:21  geoffm
+
+	* gomenu: Woops - got rid of some debugging code in handleOPTS 
+
+2001-11-11 09:58  geoffm
+
+	* sample.bashrc: Changed nsdump to use dig instead of host 
+
+2001-11-11 09:53  geoffm
+
+	* sample.bashrc: Change nsdump to use host instead of nslookup 
+
+2001-10-30 17:06  cvsuser
+
+	* sample.bashrc: Added a little note about how to calculate the
+	dirname with bash and ksh 
+
+2001-10-30 14:06  cvsuser
+
+	* sample.bashrc: Moved DTIME var back into the function where it is
+	called to keep it current 
+
+2001-10-29 17:46  cvsuser
+
+	* sample.bashrc: Added a note about other ways to determine
+	basename...  
+
+2001-10-22 09:12  geoffm
+
+	* sample.bashrc: Still tweaking replaceit function...  
+
+2001-10-22 09:05  geoffm
+
+	* sample.bashrc: Added some error checking to the replaceit
+	function ...  
+
+2001-10-16 19:34  geoffm
+
+	* sample.bashrc: MovedDTIME variable to global variable status...  
+
+2001-10-14 09:38  geoffm
+
+	* gomenu: [no log message] 
+
+2001-10-12 12:23  cvsuser
+
+	* sample.bashrc, sample.bashrc: [no log message] 
+
+2001-10-12 12:12  cvsuser
+
+	* sample.bashrc: [no log message] 
+
+2001-10-12 12:08  cvsuser
+
+	* sample.bashrc: Changed pss () to use -o with params defined.  
+
+2001-10-11 15:53  cvsuser
+
+	* sample.bashrc: Aesthetic improvement to killike() 
+
+2001-10-09 09:59  geoffm
+
+	* sample.bashrc: Changed replaceit back to the sed method ...  
+
+2001-10-02 07:59  cvsuser
+
+	* sample.bashrc: Improved parsing for lsfuncs...  
+
+2001-10-02 07:55  cvsuser
+
+	* sample.bashrc: [no log message] 
+
+2001-09-30 14:45  geoffm
+
+	* sample.bashrc: Tweaked lf and lfall functions...  
+
+2001-09-29 12:09  geoffm
+
+	* sample.bashrc: Changed doTITLE and doSUBTITLE and changed ldict 
+
+2001-09-29 08:04  geoffm
+
+	* sample.bashrc: Lots of changes - addition of doTITLE and doEXIT
+	to most functions 
+
+2001-09-15 16:17  geoffm
+
+	* sample.bashrc: Tweaked the JAVA_HOME stuff 
+
+2001-09-01 13:06  cvsuser
+
+	* sample.bashrc: Added doTITLE and doSUBTITLE functions...  
+
+2001-08-31 10:44  cvsuser
+
+	* sample.bashrc: Change killike slightly...  
+
+2001-08-30 12:15  cvsuser
+
+	* sample.bashrc: dded lsplmods () to list perl modules...  
+
+2001-08-29 15:40  cvsuser
+
+	* sample.bashrc: dded JAVA_HOME export to this script 
+
+2001-08-26 08:36  geoffm
+
+	* sample.bashrc: Added a comment about resetting your terminal.  
+
+2001-08-03 21:23  geoffm
+
+	* sample.bashrc: [no log message] 
+
+2001-08-03 20:58  geoffm
+
+	* sample.bashrc: [no log message] 
+
+2001-07-30 23:04  geoffm
+
+	* sample.bashrc: Change llsm and lsm function....  
+
+2001-07-26 08:05  cvsuser
+
+	* sample.bashrc: Changed color back to ESC codes from tput - it is
+	faster and works with scp - tput was way too TERM dependant...  
+
+2001-07-25 07:43  geoffm
+
+	* sample.bashrc: Added notes only to the psg () function 
+
+2001-07-21 06:33  geoffm
+
+	* sample.bashrc: Fixed TERM checks some more 
+
+2001-07-19 18:17  geoffm
+
+	* sample.bashrc: Repaired TERM stuff AGAIN! 
+
+2001-07-17 13:52  geoffm
+
+	* sample.bashrc: Change the saveit function...  
+
+2001-07-17 12:26  geoffm
+
+	* sample.bashrc: Fixed a TERM problem with ssh to Solaris and the
+	tput commands Also fixed the id command use on Solaris 
+
+2001-07-15 11:09  geoffm
+
+	* sample.bashrc: Added doEXIT and saveit () 
+
+2001-07-14 20:54  geoffm
+
+	* sample.bashrc: Added the setvim () function 
+
+2001-07-08 10:36  geoffm
+
+	* sample.bashrc: Changed rpmvu to rpm -qpl 
+
+2001-07-05 13:01  cvsuser
+
+	* sample.bashrc: Fixed the ls sorting problem introduced with
+	RedHat 7.1 
+
+2001-07-05 12:58  cvsuser
+
+	* gomenu: Fixed the SHOSTNAME problem on non-linux machines (it was
+	serious!) It used hostname -s and on other boxes, it would change
+	the hostname of the box to "-s" ! 
+
+2001-06-14 20:48  geoffm
+
+	* gomenu: Changed to shabang of bash...  
+
+2001-06-11 13:29  geoffm
+
+	* gomenu, sample.bashrc: [no log message] 
+
+2001-06-10 11:02  geoffm
+
+	* inetcmd.exp: Strengthened the security msg in inetcmd.exp 
+
+2001-06-10 10:57  geoffm
+
+	* inetcmd.exp: Added version tags to inetcmd.exp 
+
+2001-06-10 10:50  cvsuser
+
+	* sample.bashrc: Changed the NORMAL termcap code to properly reset
+	colors 
+
+2001-06-09 17:26  cvsuser
+
+	* sample.bashrc: Minor repair to color defs 
+
+2001-06-09 15:51  cvsuser
+
+	* sample.bashrc: Made some changes to the setcvs ()...  
+
+2001-06-09 14:49  cvsuser
+
+	* sample.bashrc: Changed color references to tput TERM commands -
+	thanks Bruce Verderaime! 
+
+2001-06-07 21:48  cvsuser
+
+	* sample.bashrc: Fixed the ed script in replaceit () 
+
+2001-06-07 21:01  cvsuser
+
+	* sample.bashrc: Lots of changes to setcvs and to setbell ans some
+	to replaceit.  
+
+2001-06-07 17:14  cvsuser
+
+	* sample.bashrc: Changed set-cvs to work better with Solaris 
+
+2001-06-05 15:37  cvsuser
+
+	* sample.bashrc: Added a test for ls alias 
+
+2001-06-04 16:49  cvsuser
+
+	* sample.bashrc: Repaired the set-cvs function... should work
+	properly now.  
+
+2001-06-02 18:12  cvsuser
+
+	* sample.bashrc: Will create $HOME/tmp if needed...  
+
+2001-05-27 17:11  cvsuser
+
+	* sample.bashrc: Added the count of occurances to replaceit () 
+
+2001-05-27 13:46  cvsuser
+
+	* sample.bashrc: Minor cosmetic change to replaceit () 
+
+2001-05-23 20:14  cvsuser
+
+	* sample.bashrc: Removed PRJ directory - made tkcvs use DEV
+	directory instead.  
+
+2001-05-22 20:19  geoffm
+
+	* sample.bashrc: Added making $PRJ and $DEV dir if not present
+	already 
+
+2001-05-22 20:14  geoffm
+
+	* sample.bashrc: Added -p to type calls nad changed PRJ and DEV
+	variables, also deleted the common CVSROOT - changed it to blank
+	from my home cvs dir (gwm) 
+
+2001-05-21 20:42  geoffm
+
+	* sample.bashrc: Added askYN and set-cvs functions...  
+
+2001-05-18 23:21  geoffm
+
+	* gomenu: Slightly changed the Ver: display  heading 
+
+2001-05-18 23:09  geoffm
+
+	* gomenu: [no log message] 
+
+2001-05-18 23:08  geoffm
+
+	* gomenu: Changed VERSION and LASTMOD variables 
+
+2001-05-18 22:18  geoffm
+
+	* sample.bashrc: Change all references of awk to $AWK_CMD...  
+
+2001-05-18 22:10  geoffm
+
+	* sample.bashrc: Did an rcv ci and then co -u first to get ident
+	tags working...  
+
+2001-05-17 22:14  geoffm
+
+	* sample.bashrc: [no log message] 
+
+2001-05-17 22:02  geoffm
+
+	* sample.bashrc: Changed sample bashrc 
+
+2001-05-17 21:59  geoffm
+
+	* sample.bashrc: Added sample.bashrc 
+
+2001-05-17 21:58  geoffm
+
+	* sample.bashrc: removed sample.bashrc but will restore it later 
+
+2001-05-17 21:53  geoffm
+
+	* sample.bashrc: [no log message] 
+
+2001-05-17 21:46  geoffm
+
+	* sample.bashrc, sample.bashrc: [no log message] 
+
+2001-05-17 21:44  geoffm
+
+	* sample.bashrc: Fixed Revision and Date again 
+
+2001-05-17 21:29  geoffm
+
+	* sample.bashrc: Fixed lsfuncs-problems with finding .bashrc...  
+
+2001-05-17 21:24  geoffm
+
+	* sample.bashrc: Fixed Revision and Date ident tags...  
+
+2001-05-17 21:21  geoffm
+
+	* gomenu: Fixed Revision and Date ident tags...  
+
+2001-05-17 21:00  geoffm
+
+	* CHANGELOG, CHANGES, COPYING, README, TODO, gomenu, inetcmd.exp,
+	sample.bashrc: Initial revision 
+
+2001-05-17 21:00  geoffm
+
+	* CHANGELOG, CHANGES, COPYING, README, TODO, gomenu, inetcmd.exp,
+	sample.bashrc: [no log message] 
+
+>>>>>>> 1.10
